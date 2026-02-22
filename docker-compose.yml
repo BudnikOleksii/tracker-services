@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:15.15-alpine
+    container_name: tracker-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tracker
+      POSTGRES_PASSWORD: tracker123
+      POSTGRES_DB: tracker
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tracker-network
+
+  pgadmin:
+    image: dpage/pgadmin4:9.9
+    container_name: tracker-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@tracker.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - tracker-network
+    depends_on:
+      - postgres
+
+  redis:
+    image: redis:7.4.3-alpine
+    container_name: tracker-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - tracker-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: tracker-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - '8081:8081'
+    networks:
+      - tracker-network
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  redis_data:
+  postgres_test_data:
+
+networks:
+  tracker-network:
+    driver: bridge
