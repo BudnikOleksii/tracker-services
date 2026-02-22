@@ -1,5 +1,5 @@
 {
-  "id": "35d22543-7dea-4864-aa57-c8516c9226e1",
+  "id": "5d592bfe-d5b5-402a-b652-cea8fdaddd60",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -333,7 +333,7 @@
         },
         "amount": {
           "name": "amount",
-          "type": "numeric(19, 4)",
+          "type": "numeric(19, 2)",
           "primaryKey": false,
           "notNull": true
         },

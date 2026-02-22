@@ -34,7 +34,7 @@ CREATE TABLE "Transaction" (
 	"userId" uuid NOT NULL,
 	"categoryId" uuid NOT NULL,
 	"type" "TransactionType" NOT NULL,
-	"amount" numeric(19, 4) NOT NULL,
+	"amount" numeric(19, 2) NOT NULL,
 	"currencyCode" "CurrencyCode" NOT NULL,
 	"date" timestamp (3) NOT NULL,
 	"description" text,

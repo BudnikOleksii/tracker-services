@@ -23,7 +23,7 @@ export const transactions = pgTable(
       .notNull()
       .references(() => transactionCategories.id, { onDelete: 'restrict' }),
     type: transactionTypeEnum('type').notNull(),
-    amount: numeric('amount', { precision: 19, scale: 4 }).notNull(),
+    amount: numeric('amount', { precision: 19, scale: 2 }).notNull(),
     currencyCode: currencyCodeEnum('currencyCode').notNull(),
     date: timestamp('date', { precision: 3, mode: 'date' }).notNull(),
     description: text('description'),
