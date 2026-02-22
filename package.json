@@ -1,0 +1,31 @@
+{
+  "name": "tracker-services",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "generate-agents-rules": "rulesync generate",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "20.2.0",
+    "@commitlint/config-conventional": "20.2.0",
+    "@tracker/eslint-config": "workspace:*",
+    "@tracker/typescript-config": "workspace:*",
+    "eslint": "9.39.1",
+    "husky": "9.1.7",
+    "lint-staged": "16.2.7",
+    "prettier": "3.8.1",
+    "rulesync": "7.6.3",
+    "turbo": "2.8.10",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": "22.15.0",
+    "pnpm": "10.10.0"
+  },
+  "packageManager": "pnpm@10.10.0"
+}

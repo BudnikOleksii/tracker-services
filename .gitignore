@@ -1,0 +1,63 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Local env files
+.env
+.env.local
+.env.prod
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage
+.nyc_output
+
+# Turbo
+.turbo
+
+# Build Outputs
+dist
+build
+out
+.next/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Debug
+*.pem
+
+# OS
+.DS_Store
+
+# IDEs
+.idea
+.vscode/*
+
+# Temp
+.temp
+.tmp
+
+# Cursor plans
+.cursor/plans
+
+# Example (reference only)
+example/

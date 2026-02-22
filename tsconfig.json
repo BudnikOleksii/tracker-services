@@ -1,0 +1,8 @@
+{
+  "extends": "@tracker/typescript-config/base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["commitlint.config.ts", "eslint.config.mjs"],
+  "exclude": ["node_modules", "dist", "apps", "packages"]
+}
