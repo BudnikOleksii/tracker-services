@@ -16,11 +16,11 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
 import { JwtAuthGuard, RolesGuard, Roles, CurrentUser } from '@tracker/shared';
 import { USER_ROLES } from '@tracker/database';
 
 import { SERVICES } from '../constants/services.constant';
+import { sendWithTimeout } from '../utils/microservice.util';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -48,11 +48,10 @@ export class UsersController {
   async getCurrentUser(
     @CurrentUser() user: { id: string },
   ): Promise<UserResponseDto> {
-    return lastValueFrom(
-      this.usersClient.send<UserResponseDto>(
-        { cmd: 'get-user' },
-        { userId: user.id },
-      ),
+    return sendWithTimeout<UserResponseDto>(
+      this.usersClient,
+      { cmd: 'get-user' },
+      { userId: user.id },
     );
   }
 
@@ -71,11 +70,10 @@ export class UsersController {
     @CurrentUser() user: { id: string },
     @Body() dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return lastValueFrom(
-      this.usersClient.send<UserResponseDto>(
-        { cmd: 'update-profile' },
-        { userId: user.id, ...dto },
-      ),
+    return sendWithTimeout<UserResponseDto>(
+      this.usersClient,
+      { cmd: 'update-profile' },
+      { userId: user.id, ...dto },
     );
   }
 
@@ -98,8 +96,10 @@ export class UsersController {
   })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
-    return lastValueFrom(
-      this.usersClient.send<UserResponseDto>({ cmd: 'get-user-by-id' }, { id }),
+    return sendWithTimeout<UserResponseDto>(
+      this.usersClient,
+      { cmd: 'get-user-by-id' },
+      { id },
     );
   }
 
@@ -125,11 +125,10 @@ export class UsersController {
     @Param('id') id: string,
     @Body() dto: UpdateRoleDto,
   ): Promise<UserResponseDto> {
-    return lastValueFrom(
-      this.usersClient.send<UserResponseDto>(
-        { cmd: 'update-user-role' },
-        { id, role: dto.role },
-      ),
+    return sendWithTimeout<UserResponseDto>(
+      this.usersClient,
+      { cmd: 'update-user-role' },
+      { id, role: dto.role },
     );
   }
 }

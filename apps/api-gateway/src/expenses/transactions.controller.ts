@@ -23,7 +23,6 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
 import {
   JwtAuthGuard,
   CurrentUser,
@@ -31,6 +30,7 @@ import {
 } from '@tracker/shared';
 
 import { SERVICES } from '../constants/services.constant';
+import { sendWithTimeout } from '../utils/microservice.util';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionQueryDto } from './dto/transaction-query.dto';
@@ -64,11 +64,10 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Body() dto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return lastValueFrom(
-      this.expensesClient.send<TransactionResponseDto>(
-        { cmd: 'create-transaction' },
-        { userId: user.id, ...dto },
-      ),
+    return sendWithTimeout<TransactionResponseDto>(
+      this.expensesClient,
+      { cmd: 'create-transaction' },
+      { userId: user.id, ...dto },
     );
   }
 
@@ -99,11 +98,10 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Query() query: TransactionQueryDto,
   ): Promise<PaginatedResponseDto<TransactionResponseDto>> {
-    return lastValueFrom(
-      this.expensesClient.send<PaginatedResponseDto<TransactionResponseDto>>(
-        { cmd: 'find-all-transactions' },
-        { userId: user.id, ...query },
-      ),
+    return sendWithTimeout<PaginatedResponseDto<TransactionResponseDto>>(
+      this.expensesClient,
+      { cmd: 'find-all-transactions' },
+      { userId: user.id, ...query },
     );
   }
 
@@ -121,11 +119,10 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Query() query: TransactionStatisticsQueryDto,
   ): Promise<TransactionStatisticsResponseDto> {
-    return lastValueFrom(
-      this.expensesClient.send<TransactionStatisticsResponseDto>(
-        { cmd: 'get-transaction-statistics' },
-        { userId: user.id, ...query },
-      ),
+    return sendWithTimeout<TransactionStatisticsResponseDto>(
+      this.expensesClient,
+      { cmd: 'get-transaction-statistics' },
+      { userId: user.id, ...query },
     );
   }
 
@@ -145,11 +142,10 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
   ): Promise<TransactionResponseDto> {
-    return lastValueFrom(
-      this.expensesClient.send<TransactionResponseDto>(
-        { cmd: 'find-one-transaction' },
-        { userId: user.id, id },
-      ),
+    return sendWithTimeout<TransactionResponseDto>(
+      this.expensesClient,
+      { cmd: 'find-one-transaction' },
+      { userId: user.id, id },
     );
   }
 
@@ -171,11 +167,10 @@ export class TransactionsController {
     @Param('id') id: string,
     @Body() dto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return lastValueFrom(
-      this.expensesClient.send<TransactionResponseDto>(
-        { cmd: 'update-transaction' },
-        { userId: user.id, id, ...dto },
-      ),
+    return sendWithTimeout<TransactionResponseDto>(
+      this.expensesClient,
+      { cmd: 'update-transaction' },
+      { userId: user.id, id, ...dto },
     );
   }
 
@@ -195,11 +190,10 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
   ): Promise<void> {
-    await lastValueFrom(
-      this.expensesClient.send(
-        { cmd: 'remove-transaction' },
-        { userId: user.id, id },
-      ),
+    await sendWithTimeout(
+      this.expensesClient,
+      { cmd: 'remove-transaction' },
+      { userId: user.id, id },
     );
   }
 }

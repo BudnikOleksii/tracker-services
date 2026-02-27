@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
 
 import { gatewayConfigSchema, type GatewayConfig } from './gateway.config';
+import { SERVICES } from '../constants/services.constant';
 
 export default registerAs<GatewayConfig>('gateway', () => {
   const value = gatewayConfigSchema.validate(
@@ -13,19 +14,19 @@ export default registerAs<GatewayConfig>('gateway', () => {
       apiVersion: process.env.API_VERSION ?? '1',
       jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
       services: {
-        auth: {
+        [SERVICES.AUTH]: {
           host: process.env.AUTH_SERVICE_HOST ?? 'localhost',
           port: process.env.AUTH_SERVICE_PORT
             ? Number(process.env.AUTH_SERVICE_PORT)
             : 3001,
         },
-        expenses: {
+        [SERVICES.EXPENSES]: {
           host: process.env.EXPENSES_SERVICE_HOST ?? 'localhost',
           port: process.env.EXPENSES_SERVICE_PORT
             ? Number(process.env.EXPENSES_SERVICE_PORT)
             : 3002,
         },
-        users: {
+        [SERVICES.USERS]: {
           host: process.env.USERS_SERVICE_HOST ?? 'localhost',
           port: process.env.USERS_SERVICE_PORT
             ? Number(process.env.USERS_SERVICE_PORT)

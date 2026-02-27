@@ -22,12 +22,12 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
 import { JwtAuthGuard, CurrentUser } from '@tracker/shared';
 import { TRANSACTION_TYPES } from '@tracker/database';
 import type { TransactionType } from '@tracker/database';
 
 import { SERVICES } from '../constants/services.constant';
+import { sendWithTimeout } from '../utils/microservice.util';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryResponseDto } from './dto/category-response.dto';
@@ -57,11 +57,10 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Body() dto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return lastValueFrom(
-      this.expensesClient.send<CategoryResponseDto>(
-        { cmd: 'create-category' },
-        { userId: user.id, ...dto },
-      ),
+    return sendWithTimeout<CategoryResponseDto>(
+      this.expensesClient,
+      { cmd: 'create-category' },
+      { userId: user.id, ...dto },
     );
   }
 
@@ -87,11 +86,10 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Query('type') type?: TransactionType,
   ): Promise<CategoryResponseDto[]> {
-    return lastValueFrom(
-      this.expensesClient.send<CategoryResponseDto[]>(
-        { cmd: 'find-all-categories' },
-        { userId: user.id, type },
-      ),
+    return sendWithTimeout<CategoryResponseDto[]>(
+      this.expensesClient,
+      { cmd: 'find-all-categories' },
+      { userId: user.id, type },
     );
   }
 
@@ -111,11 +109,10 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
   ): Promise<CategoryResponseDto> {
-    return lastValueFrom(
-      this.expensesClient.send<CategoryResponseDto>(
-        { cmd: 'find-one-category' },
-        { userId: user.id, id },
-      ),
+    return sendWithTimeout<CategoryResponseDto>(
+      this.expensesClient,
+      { cmd: 'find-one-category' },
+      { userId: user.id, id },
     );
   }
 
@@ -137,11 +134,10 @@ export class CategoriesController {
     @Param('id') id: string,
     @Body() dto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return lastValueFrom(
-      this.expensesClient.send<CategoryResponseDto>(
-        { cmd: 'update-category' },
-        { userId: user.id, id, ...dto },
-      ),
+    return sendWithTimeout<CategoryResponseDto>(
+      this.expensesClient,
+      { cmd: 'update-category' },
+      { userId: user.id, id, ...dto },
     );
   }
 
@@ -161,11 +157,10 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
   ): Promise<void> {
-    await lastValueFrom(
-      this.expensesClient.send(
-        { cmd: 'remove-category' },
-        { userId: user.id, id },
-      ),
+    await sendWithTimeout(
+      this.expensesClient,
+      { cmd: 'remove-category' },
+      { userId: user.id, id },
     );
   }
 }

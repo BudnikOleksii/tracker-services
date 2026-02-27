@@ -20,10 +20,10 @@ import {
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { lastValueFrom } from 'rxjs';
 import { Public, JwtAuthGuard, CurrentUser } from '@tracker/shared';
 
 import { SERVICES } from '../constants/services.constant';
+import { sendWithTimeout } from '../utils/microservice.util';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -66,11 +66,10 @@ export class AuthController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.get('user-agent');
 
-    return lastValueFrom(
-      this.authClient.send<UserResponseDto>(
-        { cmd: 'register' },
-        { ...dto, ipAddress, userAgent },
-      ),
+    return sendWithTimeout<UserResponseDto>(
+      this.authClient,
+      { cmd: 'register' },
+      { ...dto, ipAddress, userAgent },
     );
   }
 
@@ -86,11 +85,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Email successfully verified' })
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   async verifyEmail(@Body() dto: VerifyEmailDto): Promise<{ message: string }> {
-    return lastValueFrom(
-      this.authClient.send<{ message: string }>(
-        { cmd: 'verify-email' },
-        { token: dto.token },
-      ),
+    return sendWithTimeout<{ message: string }>(
+      this.authClient,
+      { cmd: 'verify-email' },
+      { token: dto.token },
     );
   }
 
@@ -119,11 +117,10 @@ export class AuthController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.get('user-agent');
 
-    const result = await lastValueFrom(
-      this.authClient.send<AuthResponseWithRefreshTokenDto>(
-        { cmd: 'login' },
-        { ...dto, ipAddress, userAgent },
-      ),
+    const result = await sendWithTimeout<AuthResponseWithRefreshTokenDto>(
+      this.authClient,
+      { cmd: 'login' },
+      { ...dto, ipAddress, userAgent },
     );
 
     this.setRefreshTokenCookie(res, result.refreshToken);
@@ -169,11 +166,10 @@ export class AuthController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.get('user-agent');
 
-    const result = await lastValueFrom(
-      this.authClient.send<RefreshTokenResponseDto>(
-        { cmd: 'refresh' },
-        { refreshToken, ipAddress, userAgent },
-      ),
+    const result = await sendWithTimeout<RefreshTokenResponseDto>(
+      this.authClient,
+      { cmd: 'refresh' },
+      { refreshToken, ipAddress, userAgent },
     );
 
     this.setRefreshTokenCookie(res, result.refreshToken);
@@ -200,8 +196,10 @@ export class AuthController {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
 
     if (refreshToken) {
-      await lastValueFrom(
-        this.authClient.send<unknown>({ cmd: 'logout' }, { refreshToken }),
+      await sendWithTimeout<unknown>(
+        this.authClient,
+        { cmd: 'logout' },
+        { refreshToken },
       );
     }
 
@@ -222,11 +220,10 @@ export class AuthController {
   async logoutAll(
     @CurrentUser() user: { id: string },
   ): Promise<{ message: string }> {
-    return lastValueFrom(
-      this.authClient.send<{ message: string }>(
-        { cmd: 'logout-all' },
-        { userId: user.id },
-      ),
+    return sendWithTimeout<{ message: string }>(
+      this.authClient,
+      { cmd: 'logout-all' },
+      { userId: user.id },
     );
   }
 
