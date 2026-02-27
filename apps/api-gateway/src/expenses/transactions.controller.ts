@@ -28,6 +28,7 @@ import {
   JwtAuthGuard,
   CurrentUser,
   PaginatedResponseDto,
+  MESSAGE_PATTERNS,
 } from '@tracker/shared';
 
 import { SERVICES } from '../constants/services.constant';
@@ -67,7 +68,7 @@ export class TransactionsController {
   ): Promise<TransactionResponseDto> {
     return sendWithTimeout<TransactionResponseDto>(
       this.expensesClient,
-      { cmd: 'create-transaction' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.CREATE_TRANSACTION },
       { userId: user.id, ...dto },
     );
   }
@@ -101,7 +102,7 @@ export class TransactionsController {
   ): Promise<PaginatedResponseDto<TransactionResponseDto>> {
     return sendWithTimeout<PaginatedResponseDto<TransactionResponseDto>>(
       this.expensesClient,
-      { cmd: 'find-all-transactions' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ALL_TRANSACTIONS },
       { userId: user.id, ...query },
     );
   }
@@ -120,7 +121,7 @@ export class TransactionsController {
   ): Promise<{ ok: boolean }> {
     await sendWithTimeout(
       this.expensesClient,
-      { cmd: 'admin-test-transaction' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.ADMIN_TEST_TRANSACTION },
       { userId: user.id },
     );
 
@@ -143,7 +144,7 @@ export class TransactionsController {
   ): Promise<TransactionStatisticsResponseDto> {
     return sendWithTimeout<TransactionStatisticsResponseDto>(
       this.expensesClient,
-      { cmd: 'get-transaction-statistics' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.GET_TRANSACTION_STATISTICS },
       { userId: user.id, ...query },
     );
   }
@@ -166,7 +167,7 @@ export class TransactionsController {
   ): Promise<TransactionResponseDto> {
     return sendWithTimeout<TransactionResponseDto>(
       this.expensesClient,
-      { cmd: 'find-one-transaction' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ONE_TRANSACTION },
       { userId: user.id, id },
     );
   }
@@ -191,7 +192,7 @@ export class TransactionsController {
   ): Promise<TransactionResponseDto> {
     return sendWithTimeout<TransactionResponseDto>(
       this.expensesClient,
-      { cmd: 'update-transaction' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.UPDATE_TRANSACTION },
       { userId: user.id, id, ...dto },
     );
   }
@@ -214,7 +215,7 @@ export class TransactionsController {
   ): Promise<void> {
     await sendWithTimeout(
       this.expensesClient,
-      { cmd: 'remove-transaction' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.REMOVE_TRANSACTION },
       { userId: user.id, id },
     );
   }

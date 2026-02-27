@@ -20,7 +20,12 @@ import {
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { Public, JwtAuthGuard, CurrentUser } from '@tracker/shared';
+import {
+  Public,
+  JwtAuthGuard,
+  CurrentUser,
+  MESSAGE_PATTERNS,
+} from '@tracker/shared';
 
 import { SERVICES } from '../constants/services.constant';
 import { sendWithTimeout } from '../utils/microservice.util';
@@ -68,7 +73,7 @@ export class AuthController {
 
     return sendWithTimeout<UserResponseDto>(
       this.authClient,
-      { cmd: 'register' },
+      { cmd: MESSAGE_PATTERNS.AUTH.REGISTER },
       { ...dto, ipAddress, userAgent },
     );
   }
@@ -87,7 +92,7 @@ export class AuthController {
   async verifyEmail(@Body() dto: VerifyEmailDto): Promise<{ message: string }> {
     return sendWithTimeout<{ message: string }>(
       this.authClient,
-      { cmd: 'verify-email' },
+      { cmd: MESSAGE_PATTERNS.AUTH.VERIFY_EMAIL },
       { token: dto.token },
     );
   }
@@ -119,7 +124,7 @@ export class AuthController {
 
     const result = await sendWithTimeout<AuthResponseWithRefreshTokenDto>(
       this.authClient,
-      { cmd: 'login' },
+      { cmd: MESSAGE_PATTERNS.AUTH.LOGIN },
       { ...dto, ipAddress, userAgent },
     );
 
@@ -168,7 +173,7 @@ export class AuthController {
 
     const result = await sendWithTimeout<RefreshTokenResponseDto>(
       this.authClient,
-      { cmd: 'refresh' },
+      { cmd: MESSAGE_PATTERNS.AUTH.REFRESH },
       { refreshToken, ipAddress, userAgent },
     );
 
@@ -198,7 +203,7 @@ export class AuthController {
     if (refreshToken) {
       await sendWithTimeout<unknown>(
         this.authClient,
-        { cmd: 'logout' },
+        { cmd: MESSAGE_PATTERNS.AUTH.LOGOUT },
         { refreshToken },
       );
     }
@@ -222,7 +227,7 @@ export class AuthController {
   ): Promise<{ message: string }> {
     return sendWithTimeout<{ message: string }>(
       this.authClient,
-      { cmd: 'logout-all' },
+      { cmd: MESSAGE_PATTERNS.AUTH.LOGOUT_ALL },
       { userId: user.id },
     );
   }

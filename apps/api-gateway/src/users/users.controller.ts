@@ -16,7 +16,13 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { JwtAuthGuard, RolesGuard, Roles, CurrentUser } from '@tracker/shared';
+import {
+  JwtAuthGuard,
+  RolesGuard,
+  Roles,
+  CurrentUser,
+  MESSAGE_PATTERNS,
+} from '@tracker/shared';
 import { USER_ROLES } from '@tracker/database';
 
 import { SERVICES } from '../constants/services.constant';
@@ -50,7 +56,7 @@ export class UsersController {
   ): Promise<UserResponseDto> {
     return sendWithTimeout<UserResponseDto>(
       this.usersClient,
-      { cmd: 'get-user' },
+      { cmd: MESSAGE_PATTERNS.USERS.GET_USER },
       { userId: user.id },
     );
   }
@@ -72,7 +78,7 @@ export class UsersController {
   ): Promise<UserResponseDto> {
     return sendWithTimeout<UserResponseDto>(
       this.usersClient,
-      { cmd: 'update-profile' },
+      { cmd: MESSAGE_PATTERNS.USERS.UPDATE_PROFILE },
       { userId: user.id, ...dto },
     );
   }
@@ -98,7 +104,7 @@ export class UsersController {
   async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
     return sendWithTimeout<UserResponseDto>(
       this.usersClient,
-      { cmd: 'get-user-by-id' },
+      { cmd: MESSAGE_PATTERNS.USERS.GET_USER_BY_ID },
       { id },
     );
   }
@@ -127,7 +133,7 @@ export class UsersController {
   ): Promise<UserResponseDto> {
     return sendWithTimeout<UserResponseDto>(
       this.usersClient,
-      { cmd: 'update-user-role' },
+      { cmd: MESSAGE_PATTERNS.USERS.UPDATE_USER_ROLE },
       { id, role: dto.role },
     );
   }
