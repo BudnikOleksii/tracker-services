@@ -5,7 +5,6 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import unusedImports from 'eslint-plugin-unused-imports';
-import noBarrelFiles from 'eslint-plugin-no-barrel-files';
 import pluginJest from 'eslint-plugin-jest';
 
 export default tseslint.config(
@@ -18,7 +17,6 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
-  noBarrelFiles.flat,
   pluginJest.configs['flat/recommended'],
   {
     languageOptions: {
