@@ -4,10 +4,6 @@ export { type AppConfig, Environment } from './config/app.config';
 export { type DatabaseConfig } from './config/database.config';
 export { type CacheConfig } from './config/cache.config';
 export { type EmailConfig } from './config/email.config';
-export { default as appConfigFactory } from './config/app.config.factory';
-export { default as databaseConfigFactory } from './config/database.config.factory';
-export { default as cacheConfigFactory } from './config/cache.config.factory';
-export { default as emailConfigFactory } from './config/email.config.factory';
 
 export { CoreModule } from './core/core.module';
 export { ERROR_MESSAGES } from './core/constants/error-messages.constant';
