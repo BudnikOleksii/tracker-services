@@ -27,6 +27,18 @@ export type {
   PaginatedResponse,
 } from './types/response';
 export type { Nullable, ObjectValuesUnion } from './types/utility';
+export type {
+  UserMetadata,
+  AuthRegisterPayload,
+  AuthLoginPayload,
+  AuthRefreshTokensPayload,
+  AuthVerifyEmailPayload,
+  AuthLogoutPayload,
+  AuthLogoutAllPayload,
+  AuthUser,
+  AuthResponse,
+  AuthRefreshResponse,
+} from './dto/auth.dto';
 export {
   isValidCurrencyCode,
   validateCurrencyCode,

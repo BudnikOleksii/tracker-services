@@ -4,7 +4,15 @@ import { RpcException } from '@nestjs/microservices';
 import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import type { User } from '@tracker/database';
-import { EmailService } from '@tracker/shared';
+import {
+  EmailService,
+  type AuthLoginPayload,
+  type AuthRefreshResponse,
+  type AuthRefreshTokensPayload,
+  type AuthRegisterPayload,
+  type AuthResponse,
+  type AuthUser,
+} from '@tracker/shared';
 
 import { AuthConfigService } from '../config/auth-config.service';
 import { UsersRepository } from './repositories/users.repository';
@@ -13,51 +21,10 @@ import { RefreshTokensRepository } from './repositories/refresh-tokens.repositor
 const BCRYPT_SALT_ROUNDS = 12;
 const EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 
-interface RegisterData {
-  email: string;
-  password: string;
-  countryCode?: string;
-  baseCurrencyCode?: string;
-  ipAddress?: string;
-  userAgent?: string;
-}
-
-interface LoginData {
-  email: string;
-  password: string;
-  ipAddress?: string;
-  userAgent?: string;
-}
-
-interface RefreshData {
-  refreshToken: string;
-  ipAddress?: string;
-  userAgent?: string;
-}
-
 interface JwtPayload {
   sub: string;
   email: string;
   role: string;
-}
-
-export type UserResponse = Omit<
-  User,
-  | 'passwordHash'
-  | 'emailVerificationToken'
-  | 'emailVerificationTokenExpiresAt'
-  | 'deletedAt'
->;
-
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: UserResponse;
-}
-
-export interface RefreshResponse {
-  accessToken: string;
-  refreshToken: string;
 }
 
 @Injectable()
@@ -70,7 +37,7 @@ export class AuthService {
     private readonly authConfigService: AuthConfigService,
   ) {}
 
-  async register(data: RegisterData): Promise<UserResponse> {
+  async register(data: AuthRegisterPayload): Promise<AuthUser> {
     const existingUser = await this.usersRepository.findByEmail(data.email);
     if (existingUser) {
       throw new RpcException({
@@ -126,7 +93,7 @@ export class AuthService {
     return { message: 'Email verified successfully' };
   }
 
-  async login(data: LoginData): Promise<AuthResponse> {
+  async login(data: AuthLoginPayload): Promise<AuthResponse> {
     const user = await this.usersRepository.findByEmail(data.email);
     if (!user) {
       throw new RpcException({
@@ -168,7 +135,9 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(data: RefreshData): Promise<RefreshResponse> {
+  async refreshTokens(
+    data: AuthRefreshTokensPayload,
+  ): Promise<AuthRefreshResponse> {
     const existingToken = await this.refreshTokensRepository.findByToken(
       data.refreshToken,
     );
@@ -302,7 +271,7 @@ export class AuthService {
     return new Date(Date.now() + seconds * 1000);
   }
 
-  private sanitizeUser(user: User): UserResponse {
+  private sanitizeUser(user: User): AuthUser {
     const {
       passwordHash: _password,
       emailVerificationToken: _token,

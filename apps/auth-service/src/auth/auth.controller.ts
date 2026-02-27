@@ -1,5 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import type {
+  AuthLoginPayload,
+  AuthRefreshTokensPayload,
+  AuthRegisterPayload,
+  AuthVerifyEmailPayload,
+} from '@tracker/shared';
 import { MESSAGE_PATTERNS } from '@tracker/shared';
 
 import { AuthService } from './auth.service';
@@ -11,32 +17,20 @@ export class AuthController {
   @MessagePattern({ cmd: MESSAGE_PATTERNS.AUTH.REGISTER })
   async register(
     @Payload()
-    data: {
-      email: string;
-      password: string;
-      countryCode?: string;
-      baseCurrencyCode?: string;
-      ipAddress?: string;
-      userAgent?: string;
-    },
+    data: AuthRegisterPayload,
   ) {
     return this.authService.register(data);
   }
 
   @MessagePattern({ cmd: MESSAGE_PATTERNS.AUTH.VERIFY_EMAIL })
-  async verifyEmail(@Payload() data: { token: string }) {
+  async verifyEmail(@Payload() data: AuthVerifyEmailPayload) {
     return this.authService.verifyEmail(data.token);
   }
 
   @MessagePattern({ cmd: MESSAGE_PATTERNS.AUTH.LOGIN })
   async login(
     @Payload()
-    data: {
-      email: string;
-      password: string;
-      ipAddress?: string;
-      userAgent?: string;
-    },
+    data: AuthLoginPayload,
   ) {
     return this.authService.login(data);
   }
@@ -44,11 +38,7 @@ export class AuthController {
   @MessagePattern({ cmd: MESSAGE_PATTERNS.AUTH.REFRESH })
   async refresh(
     @Payload()
-    data: {
-      refreshToken: string;
-      ipAddress?: string;
-      userAgent?: string;
-    },
+    data: AuthRefreshTokensPayload,
   ) {
     return this.authService.refreshTokens(data);
   }
