@@ -1,5 +1,5 @@
 {
-  "name": "@tracker/database",
+  "name": "@tracker/shared",
   "version": "0.0.0",
   "private": true,
   "main": "./src/index.ts",
@@ -12,26 +12,27 @@
     "dev": "tsc --watch",
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "node --env-file=.env --import tsx src/migrate.ts",
-    "db:seed": "node --env-file=.env --import tsx src/seeds/index.ts",
-    "db:studio": "drizzle-kit studio"
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@nestjs/common": "11.1.14",
-    "bcrypt": "6.0.0",
-    "drizzle-orm": "0.45.1",
-    "pg": "8.18.0"
+    "@nestjs/config": "4.0.2",
+    "@nestjs/core": "11.1.14",
+    "@nestjs/passport": "11.0.5",
+    "@nestjs/swagger": "11.2.1",
+    "@tracker/database": "workspace:*",
+    "joi": "18.0.1",
+    "nodemailer": "7.0.11",
+    "passport-jwt": "4.0.1",
+    "pg": "8.18.0",
+    "rxjs": "7.8.2"
   },
   "devDependencies": {
     "@tracker/eslint-config": "workspace:*",
     "@tracker/typescript-config": "workspace:*",
-    "@types/bcrypt": "6.0.0",
-    "@types/pg": "8.16.0",
-    "drizzle-kit": "0.31.9",
+    "@types/express": "5.0.5",
+    "@types/nodemailer": "7.0.4",
     "eslint": "9.39.1",
-    "tsx": "4.21.0",
     "typescript": "5.9.3"
   }
 }
