@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Inject,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -105,6 +106,27 @@ export class TransactionsController {
     );
   }
 
+  @Get('admin/test')
+  @ApiOperation({
+    summary: 'Admin test transaction endpoint',
+    description: 'Smoke test endpoint for transactions admin operations',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Admin test executed successfully',
+  })
+  async adminTest(
+    @CurrentUser() user: { id: string },
+  ): Promise<{ ok: boolean }> {
+    await sendWithTimeout(
+      this.expensesClient,
+      { cmd: 'admin-test-transaction' },
+      { userId: user.id },
+    );
+
+    return { ok: true };
+  }
+
   @Get('statistics')
   @ApiOperation({
     summary: 'Get transaction statistics',
@@ -140,7 +162,7 @@ export class TransactionsController {
   @ApiResponse({ status: 404, description: 'Transaction not found' })
   async findOne(
     @CurrentUser() user: { id: string },
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<TransactionResponseDto> {
     return sendWithTimeout<TransactionResponseDto>(
       this.expensesClient,
@@ -164,7 +186,7 @@ export class TransactionsController {
   @ApiResponse({ status: 404, description: 'Transaction not found' })
   async update(
     @CurrentUser() user: { id: string },
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
     return sendWithTimeout<TransactionResponseDto>(
@@ -188,7 +210,7 @@ export class TransactionsController {
   @ApiResponse({ status: 404, description: 'Transaction not found' })
   async remove(
     @CurrentUser() user: { id: string },
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<void> {
     await sendWithTimeout(
       this.expensesClient,

@@ -24,13 +24,13 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtAuthGuard, CurrentUser } from '@tracker/shared';
 import { TRANSACTION_TYPES } from '@tracker/database';
-import type { TransactionType } from '@tracker/database';
 
 import { SERVICES } from '../constants/services.constant';
 import { sendWithTimeout } from '../utils/microservice.util';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryResponseDto } from './dto/category-response.dto';
+import { CategoriesQueryDto } from './dto/categories-query.dto';
 
 @ApiTags('categories')
 @ApiBearerAuth('JWT-auth')
@@ -84,12 +84,12 @@ export class CategoriesController {
   })
   async findAll(
     @CurrentUser() user: { id: string },
-    @Query('type') type?: TransactionType,
+    @Query() query: CategoriesQueryDto,
   ): Promise<CategoryResponseDto[]> {
     return sendWithTimeout<CategoryResponseDto[]>(
       this.expensesClient,
       { cmd: 'find-all-categories' },
-      { userId: user.id, type },
+      { userId: user.id, type: query.type },
     );
   }
 
