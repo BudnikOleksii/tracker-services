@@ -1,4 +1,4 @@
-name: Lint, test and check types on PR
+name: Lint and check types on PR
 
 on:
   pull_request:
