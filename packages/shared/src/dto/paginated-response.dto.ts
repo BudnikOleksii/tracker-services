@@ -1,4 +1,4 @@
-import { type PaginationMeta } from '../types/common.types';
+import { type PaginationMeta } from '../types/response';
 
 export class PaginatedResponseDto<T> {
   data: T[];

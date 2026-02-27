@@ -48,6 +48,9 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # OS
 .DS_Store
 
+# TypeScript cache
+*.tsbuildinfo
+
 # IDEs
 .idea
 .vscode/*

@@ -1,7 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { userRoleEnum } from '@tracker/database';
-
-export type UserRole = (typeof userRoleEnum.enumValues)[number];
+import type { UserRole } from '@tracker/database';
 
 export const ROLES_KEY = 'roles';
 

@@ -1,9 +1,11 @@
 export { ConfigModule } from './config/config.module';
 export { AppConfigService } from './config/app-config.service';
-export { type AppConfig, Environment } from './config/app.config';
-export { type DatabaseConfig } from './config/database.config';
-export { type CacheConfig } from './config/cache.config';
-export { type EmailConfig } from './config/email.config';
+export type { AppConfig, Environment } from './config/app.config';
+export type { DatabaseConfig } from './config/database.config';
+export type { CacheConfig } from './config/cache.config';
+export type { EmailConfig } from './config/email.config';
+export { default as appConfigFactory } from './config/app.config.factory';
+export { default as cacheConfigFactory } from './config/cache.config.factory';
 
 export { CoreModule } from './core/core.module';
 export { ERROR_MESSAGES } from './core/constants/error-messages.constant';
@@ -18,11 +20,12 @@ export { ResponseTransformInterceptor } from './core/interceptors/response-trans
 export { SharedModule } from './shared.module';
 export { EmailService } from './services/email.service';
 export { PaginatedResponseDto } from './dto/paginated-response.dto';
-export {
-  type ApiResponse,
-  type PaginationMeta,
-  type PaginatedResponse,
-} from './types/common.types';
+export type {
+  ApiResponse,
+  PaginationMeta,
+  PaginatedResponse,
+} from './types/response';
+export type { Nullable, ObjectValuesUnion } from './types/utility';
 export {
   isValidCurrencyCode,
   validateCurrencyCode,
