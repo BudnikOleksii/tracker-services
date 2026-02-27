@@ -1,9 +1,7 @@
-import { currencyCodeEnum } from '@tracker/database';
-
-export type CurrencyCode = (typeof currencyCodeEnum.enumValues)[number];
+import { CURRENCY_CODES, type CurrencyCode } from '@tracker/database';
 
 export const isValidCurrencyCode = (value: string): value is CurrencyCode => {
-  return currencyCodeEnum.enumValues.includes(value as CurrencyCode);
+  return CURRENCY_CODES.includes(value as CurrencyCode);
 };
 
 export const validateCurrencyCode = (value: string): CurrencyCode => {

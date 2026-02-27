@@ -1,0 +1,28 @@
+{
+  "name": "@tracker/expenses-service",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.1.14",
+    "@nestjs/core": "11.1.14",
+    "@nestjs/microservices": "11.1.14",
+    "@tracker/database": "workspace:*",
+    "@tracker/shared": "workspace:*",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.10",
+    "@tracker/eslint-config": "workspace:*",
+    "@tracker/typescript-config": "workspace:*",
+    "eslint": "9.39.1",
+    "typescript": "5.9.3"
+  }
+}

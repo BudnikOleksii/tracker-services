@@ -3,13 +3,13 @@ import {
   refreshTokens,
   transactionCategories,
   transactions,
+  countryCodeEnum,
+  currencyCodeEnum,
+  transactionTypeEnum,
+  userRoleEnum,
 } from './schema';
 
 export {
-  userRoleEnum,
-  transactionTypeEnum,
-  countryCodeEnum,
-  currencyCodeEnum,
   users,
   usersRelations,
   refreshTokens,
@@ -20,7 +20,7 @@ export {
   transactionsRelations,
 } from './schema';
 
-export { type DrizzleDB, createDrizzleClient } from './client';
+export type { DrizzleDB, createDrizzleClient } from './client';
 
 export {
   DatabaseModule,
@@ -63,3 +63,13 @@ export type NewTransactionCategory = typeof transactionCategories.$inferInsert;
 
 export type Transaction = typeof transactions.$inferSelect;
 export type NewTransaction = typeof transactions.$inferInsert;
+
+export const TRANSACTION_TYPES = transactionTypeEnum.enumValues;
+export const COUNTRY_CODES = countryCodeEnum.enumValues;
+export const CURRENCY_CODES = currencyCodeEnum.enumValues;
+export const USER_ROLES = userRoleEnum.enumValues;
+
+export type TransactionType = (typeof TRANSACTION_TYPES)[number];
+export type CountryCode = (typeof COUNTRY_CODES)[number];
+export type CurrencyCode = (typeof CURRENCY_CODES)[number];
+export type UserRole = (typeof USER_ROLES)[number];
