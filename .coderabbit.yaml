@@ -12,7 +12,7 @@ reviews:
   path_filters:
     - '!**/node_modules/**' # Exclude dependencies
     - '!**/dist/**' # Exclude build files
-    - '!coverage/**' # Exclude test related folder
+    - '!**/coverage/**' # Exclude test related folder
   path_instructions:
     - path: '**/.env*'
       instructions: 'Check that the sensitive data is not stored in the repository.'
@@ -24,13 +24,7 @@ reviews:
       instructions: 'Review the kubernetes manifests used in Github workflows.'
     - path: '**/Dockerfile'
       instructions: 'Review the Dockerfile for best practices in building, optimizing, and running a NestJS application.'
-    - path: '**/quickstart-services.yml'
-      instructions: 'Review Docker Compose configurations for environment setup, ensuring proper service configuration, network setup, and environment variables handling.'
-    - path: '**/quickstart-services-ai.yml'
-      instructions: 'Review Docker Compose configurations for environment setup, ensuring proper service configuration, network setup, and environment variables handling.'
-    - path: '**/quickstart-services-ai-debug.yml'
-      instructions: 'Review Docker Compose configurations for environment setup, ensuring proper service configuration, network setup, and environment variables handling.'
-    - path: '**/quickstart-services-kratos-debug.yml'
+    - path: '**/docker-compose*.{yml,yaml}'
       instructions: 'Review Docker Compose configurations for environment setup, ensuring proper service configuration, network setup, and environment variables handling.'
     - path: '**/*.md'
       instructions: 'Ensure the documentation is clear, concise, and up-to-date, with accurate instructions for running the NestJS application in Docker.'

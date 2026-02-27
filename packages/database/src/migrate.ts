@@ -12,8 +12,11 @@ async function runMigrations(): Promise<void> {
   const pool = new Pool({ connectionString });
   const db = drizzle(pool);
 
-  await migrate(db, { migrationsFolder: './drizzle' });
-  await pool.end();
+  try {
+    await migrate(db, { migrationsFolder: './drizzle' });
+  } finally {
+    await pool.end();
+  }
 }
 
 void runMigrations();
