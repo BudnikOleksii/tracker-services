@@ -1,0 +1,30 @@
+export const MESSAGE_PATTERNS = {
+  AUTH: {
+    REGISTER: 'register',
+    VERIFY_EMAIL: 'verify-email',
+    LOGIN: 'login',
+    REFRESH: 'refresh',
+    LOGOUT: 'logout',
+    LOGOUT_ALL: 'logout-all',
+  },
+  USERS: {
+    GET_USER: 'get-user',
+    UPDATE_PROFILE: 'update-profile',
+    GET_USER_BY_ID: 'get-user-by-id',
+    UPDATE_USER_ROLE: 'update-user-role',
+  },
+  EXPENSES: {
+    CREATE_CATEGORY: 'create-category',
+    FIND_ALL_CATEGORIES: 'find-all-categories',
+    FIND_ONE_CATEGORY: 'find-one-category',
+    UPDATE_CATEGORY: 'update-category',
+    REMOVE_CATEGORY: 'remove-category',
+    CREATE_TRANSACTION: 'create-transaction',
+    FIND_ALL_TRANSACTIONS: 'find-all-transactions',
+    ADMIN_TEST_TRANSACTION: 'admin-test-transaction',
+    GET_TRANSACTION_STATISTICS: 'get-transaction-statistics',
+    FIND_ONE_TRANSACTION: 'find-one-transaction',
+    UPDATE_TRANSACTION: 'update-transaction',
+    REMOVE_TRANSACTION: 'remove-transaction',
+  },
+} as const;

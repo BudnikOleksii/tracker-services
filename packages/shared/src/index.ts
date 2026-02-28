@@ -9,6 +9,7 @@ export { default as cacheConfigFactory } from './config/cache.config.factory';
 
 export { CoreModule } from './core/core.module';
 export { ERROR_MESSAGES } from './core/constants/error-messages.constant';
+export { MESSAGE_PATTERNS } from './core/constants/message-patterns.constant';
 export { CurrentUser } from './core/decorators/current-user.decorator';
 export { Public, IS_PUBLIC_KEY } from './core/decorators/public.decorator';
 export { Roles, ROLES_KEY } from './core/decorators/roles.decorator';
@@ -26,6 +27,19 @@ export type {
   PaginatedResponse,
 } from './types/response';
 export type { Nullable, ObjectValuesUnion } from './types/utility';
+export type { JwtPayload } from './types/jwt';
+export type {
+  UserMetadata,
+  AuthRegisterPayload,
+  AuthLoginPayload,
+  AuthRefreshTokensPayload,
+  AuthVerifyEmailPayload,
+  AuthLogoutPayload,
+  AuthLogoutAllPayload,
+  AuthUser,
+  AuthResponse,
+  AuthRefreshResponse,
+} from './dto/auth.dto';
 export {
   isValidCurrencyCode,
   validateCurrencyCode,

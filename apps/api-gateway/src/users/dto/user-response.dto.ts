@@ -1,10 +1,10 @@
 import { Exclude, Expose } from 'class-transformer';
 import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { USER_ROLES, COUNTRY_CODES, CURRENCY_CODES } from '@tracker/database';
-import type { Nullable } from '@tracker/shared';
+import type { AuthUser, Nullable } from '@tracker/shared';
 import type { UserRole, CountryCode, CurrencyCode } from '@tracker/database';
 
-export class UserResponseDto {
+export class UserResponseDto implements AuthUser {
   @ApiProperty({
     description: 'User ID',
     format: 'uuid',

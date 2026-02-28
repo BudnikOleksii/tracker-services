@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { AuthResponse, AuthUser } from '@tracker/shared';
 
 import { UserResponseDto } from '../../users/dto/user-response.dto';
 
-export class AuthResponseDto {
+export class AuthResponseDto implements Omit<AuthResponse, 'refreshToken'> {
   @ApiProperty({
     description: 'JWT access token',
     example:
@@ -14,13 +15,5 @@ export class AuthResponseDto {
     description: 'User information',
     type: UserResponseDto,
   })
-  user!: UserResponseDto;
+  user!: AuthUser;
 }
-
-export type AuthResponseWithRefreshTokenDto = AuthResponseDto & {
-  refreshToken: string;
-};
-
-export type RefreshTokenResponseDto = Omit<AuthResponseDto, 'user'> & {
-  refreshToken: string;
-};

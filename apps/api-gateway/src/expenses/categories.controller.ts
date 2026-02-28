@@ -22,7 +22,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
-import { JwtAuthGuard, CurrentUser } from '@tracker/shared';
+import { JwtAuthGuard, CurrentUser, MESSAGE_PATTERNS } from '@tracker/shared';
 import { TRANSACTION_TYPES } from '@tracker/database';
 
 import { SERVICES } from '../constants/services.constant';
@@ -59,7 +59,7 @@ export class CategoriesController {
   ): Promise<CategoryResponseDto> {
     return sendWithTimeout<CategoryResponseDto>(
       this.expensesClient,
-      { cmd: 'create-category' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.CREATE_CATEGORY },
       { userId: user.id, ...dto },
     );
   }
@@ -88,7 +88,7 @@ export class CategoriesController {
   ): Promise<CategoryResponseDto[]> {
     return sendWithTimeout<CategoryResponseDto[]>(
       this.expensesClient,
-      { cmd: 'find-all-categories' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ALL_CATEGORIES },
       { userId: user.id, type: query.type },
     );
   }
@@ -111,7 +111,7 @@ export class CategoriesController {
   ): Promise<CategoryResponseDto> {
     return sendWithTimeout<CategoryResponseDto>(
       this.expensesClient,
-      { cmd: 'find-one-category' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ONE_CATEGORY },
       { userId: user.id, id },
     );
   }
@@ -136,7 +136,7 @@ export class CategoriesController {
   ): Promise<CategoryResponseDto> {
     return sendWithTimeout<CategoryResponseDto>(
       this.expensesClient,
-      { cmd: 'update-category' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.UPDATE_CATEGORY },
       { userId: user.id, id, ...dto },
     );
   }
@@ -159,7 +159,7 @@ export class CategoriesController {
   ): Promise<void> {
     await sendWithTimeout(
       this.expensesClient,
-      { cmd: 'remove-category' },
+      { cmd: MESSAGE_PATTERNS.EXPENSES.REMOVE_CATEGORY },
       { userId: user.id, id },
     );
   }
