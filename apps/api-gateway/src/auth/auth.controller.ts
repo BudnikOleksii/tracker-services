@@ -25,12 +25,16 @@ import {
   JwtAuthGuard,
   CurrentUser,
   MESSAGE_PATTERNS,
-  type AuthLoginPayload,
-  type AuthLogoutAllPayload,
-  type AuthLogoutPayload,
-  type AuthRefreshTokensPayload,
-  type AuthRegisterPayload,
-  type AuthVerifyEmailPayload,
+} from '@tracker/shared';
+import type {
+  AuthLoginPayload,
+  AuthLogoutAllPayload,
+  AuthLogoutPayload,
+  AuthRefreshTokensPayload,
+  AuthRegisterPayload,
+  AuthVerifyEmailPayload,
+  AuthResponse,
+  AuthRefreshResponse,
 } from '@tracker/shared';
 
 import { SERVICES } from '../constants/services.constant';
@@ -38,11 +42,7 @@ import { sendWithTimeout } from '../utils/microservice.util';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
-import {
-  AuthResponseDto,
-  type AuthResponseWithRefreshTokenDto,
-  type RefreshTokenResponseDto,
-} from './dto/auth-response.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 
 @ApiTags('auth')
@@ -128,10 +128,7 @@ export class AuthController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.get('user-agent');
 
-    const result = await sendWithTimeout<
-      AuthResponseWithRefreshTokenDto,
-      AuthLoginPayload
-    >(
+    const result = await sendWithTimeout<AuthResponse, AuthLoginPayload>(
       this.authClient,
       { cmd: MESSAGE_PATTERNS.AUTH.LOGIN },
       { ...dto, ipAddress, userAgent },
@@ -181,7 +178,7 @@ export class AuthController {
     const userAgent = req.get('user-agent');
 
     const result = await sendWithTimeout<
-      RefreshTokenResponseDto,
+      AuthRefreshResponse,
       AuthRefreshTokensPayload
     >(
       this.authClient,

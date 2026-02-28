@@ -4,15 +4,16 @@ import { RpcException } from '@nestjs/microservices';
 import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import type { User } from '@tracker/database';
-import {
-  EmailService,
-  type AuthLoginPayload,
-  type AuthRefreshResponse,
-  type AuthRefreshTokensPayload,
-  type AuthRegisterPayload,
-  type AuthResponse,
-  type AuthUser,
+import type {
+  AuthLoginPayload,
+  AuthRefreshResponse,
+  AuthRefreshTokensPayload,
+  AuthRegisterPayload,
+  AuthResponse,
+  AuthUser,
+  JwtPayload,
 } from '@tracker/shared';
+import { EmailService } from '@tracker/shared';
 
 import { AuthConfigService } from '../config/auth-config.service';
 import { UsersRepository } from './repositories/users.repository';
@@ -20,12 +21,6 @@ import { RefreshTokensRepository } from './repositories/refresh-tokens.repositor
 
 const BCRYPT_SALT_ROUNDS = 12;
 const EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
-
-interface JwtPayload {
-  sub: string;
-  email: string;
-  role: string;
-}
 
 @Injectable()
 export class AuthService {

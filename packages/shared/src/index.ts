@@ -27,6 +27,7 @@ export type {
   PaginatedResponse,
 } from './types/response';
 export type { Nullable, ObjectValuesUnion } from './types/utility';
+export type { JwtPayload } from './types/jwt';
 export type {
   UserMetadata,
   AuthRegisterPayload,
