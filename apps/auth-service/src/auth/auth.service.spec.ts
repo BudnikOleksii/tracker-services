@@ -90,7 +90,7 @@ describe('AuthService - login lockout integration', () => {
     );
   });
 
-  it('should return 429 when account is locked out', async () => {
+  it('should return uniform 401 when account is locked out', async () => {
     usersRepository.findByEmail.mockResolvedValue(mockUser);
     lockoutService.checkLockout.mockResolvedValue({
       locked: true,
@@ -109,8 +109,9 @@ describe('AuthService - login lockout integration', () => {
         string,
         unknown
       >;
-      expect(rpcError['statusCode']).toBe(HttpStatus.TOO_MANY_REQUESTS);
-      expect(rpcError['retryAfter']).toBe(60);
+      expect(rpcError['statusCode']).toBe(HttpStatus.UNAUTHORIZED);
+      expect(rpcError['message']).toBe('Invalid credentials');
+      expect(rpcError).not.toHaveProperty('retryAfter');
     }
   });
 

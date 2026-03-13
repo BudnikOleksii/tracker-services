@@ -117,11 +117,12 @@ export class AuthService {
 
     const lockoutStatus = await this.lockoutService.checkLockout(user.id);
     if (lockoutStatus.locked) {
+      this.logger.warn(
+        `Login blocked by lockout for user ${user.id}, retryAfter=${lockoutStatus.retryAfterSeconds}s`,
+      );
       throw new RpcException({
-        statusCode: HttpStatus.TOO_MANY_REQUESTS,
-        message:
-          'Account is temporarily locked due to too many failed login attempts',
-        retryAfter: lockoutStatus.retryAfterSeconds,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid credentials',
       });
     }
 
