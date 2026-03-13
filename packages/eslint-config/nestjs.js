@@ -94,6 +94,8 @@ export default tseslint.config(
       '@typescript-eslint/no-extraneous-class': 'off',
       '@typescript-eslint/unbound-method': 'off',
       'jest/unbound-method': 'error',
+      'max-params': 'off',
+      '@typescript-eslint/max-params': ['error', { max: 3 }],
     },
   },
 );

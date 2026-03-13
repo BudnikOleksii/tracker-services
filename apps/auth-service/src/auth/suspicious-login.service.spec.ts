@@ -40,12 +40,12 @@ describe('SuspiciousLoginService', () => {
     // Wait for fire-and-forget email
     await new Promise((r) => setTimeout(r, 10));
 
-    expect(emailService.sendEmail).toHaveBeenCalledWith(
-      'user@example.com',
-      'New sign-in to your account',
-      expect.stringContaining('1.2.3.4'),
-      expect.stringContaining('1.2.3.4'),
-    );
+    expect(emailService.sendEmail).toHaveBeenCalledWith({
+      to: 'user@example.com',
+      subject: 'New sign-in to your account',
+      text: expect.stringContaining('1.2.3.4') as unknown as string,
+      html: expect.stringContaining('1.2.3.4') as unknown as string,
+    });
   });
 
   it('should not send email for a known device', async () => {
@@ -73,11 +73,11 @@ describe('SuspiciousLoginService', () => {
       userAgent: 'Mozilla/5.0',
     });
 
-    expect(knownDevicesRepository.insertDeviceIfNew).toHaveBeenCalledWith(
-      'user-1',
-      '1.2.3.4',
-      'Mozilla/5.0',
-    );
+    expect(knownDevicesRepository.insertDeviceIfNew).toHaveBeenCalledWith({
+      userId: 'user-1',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla/5.0',
+    });
   });
 
   it('should skip when feature is disabled', async () => {

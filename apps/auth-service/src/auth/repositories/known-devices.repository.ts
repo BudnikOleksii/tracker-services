@@ -8,15 +8,20 @@ import {
   type KnownDevice,
 } from '@tracker/database';
 
+interface DeviceIdentifier {
+  userId: string;
+  ipAddress: string;
+  userAgent: string;
+}
+
 @Injectable()
 export class KnownDevicesRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
 
   async findDevice(
-    userId: string,
-    ipAddress: string,
-    userAgent: string,
+    deviceId: DeviceIdentifier,
   ): Promise<KnownDevice | undefined> {
+    const { userId, ipAddress, userAgent } = deviceId;
     const [device] = await this.db
       .select()
       .from(knownDevices)
@@ -31,11 +36,8 @@ export class KnownDevicesRepository {
     return device;
   }
 
-  async upsertDevice(
-    userId: string,
-    ipAddress: string,
-    userAgent: string,
-  ): Promise<KnownDevice> {
+  async upsertDevice(deviceId: DeviceIdentifier): Promise<KnownDevice> {
+    const { userId, ipAddress, userAgent } = deviceId;
     const [device] = await this.db
       .insert(knownDevices)
       .values({ userId, ipAddress, userAgent })
@@ -52,11 +54,8 @@ export class KnownDevicesRepository {
     return device as KnownDevice;
   }
 
-  async insertDeviceIfNew(
-    userId: string,
-    ipAddress: string,
-    userAgent: string,
-  ): Promise<boolean> {
+  async insertDeviceIfNew(deviceId: DeviceIdentifier): Promise<boolean> {
+    const { userId, ipAddress, userAgent } = deviceId;
     const rows = await this.db
       .insert(knownDevices)
       .values({ userId, ipAddress, userAgent })

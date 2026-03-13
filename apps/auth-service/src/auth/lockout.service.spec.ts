@@ -100,7 +100,12 @@ describe('LockoutService', () => {
     it('should record a failed attempt', async () => {
       loginAttemptsRepository.recordAttempt.mockResolvedValue(undefined);
 
-      await lockoutService.recordAttempt('user-1', false, '1.2.3.4', 'Mozilla');
+      await lockoutService.recordAttempt({
+        userId: 'user-1',
+        successful: false,
+        ipAddress: '1.2.3.4',
+        userAgent: 'Mozilla',
+      });
 
       expect(loginAttemptsRepository.recordAttempt).toHaveBeenCalledWith({
         userId: 'user-1',
@@ -113,7 +118,10 @@ describe('LockoutService', () => {
     it('should record a successful attempt', async () => {
       loginAttemptsRepository.recordAttempt.mockResolvedValue(undefined);
 
-      await lockoutService.recordAttempt('user-1', true);
+      await lockoutService.recordAttempt({
+        userId: 'user-1',
+        successful: true,
+      });
 
       expect(loginAttemptsRepository.recordAttempt).toHaveBeenCalledWith({
         userId: 'user-1',

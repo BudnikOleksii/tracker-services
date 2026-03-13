@@ -41,11 +41,11 @@ export class SuspiciousLoginService {
       return;
     }
 
-    const isNewDevice = await this.knownDevicesRepository.insertDeviceIfNew(
+    const isNewDevice = await this.knownDevicesRepository.insertDeviceIfNew({
       userId,
       ipAddress,
       userAgent,
-    );
+    });
 
     if (isNewDevice) {
       this.sendSuspiciousLoginEmail({ email, ipAddress, userAgent }).catch(
@@ -97,6 +97,6 @@ export class SuspiciousLoginService {
       '<p>If this was you, you can ignore this email. If you did not sign in, please secure your account immediately.</p>',
     ].join('\n');
 
-    await this.emailService.sendEmail(email, subject, text, html);
+    await this.emailService.sendEmail({ to: email, subject, text, html });
   }
 }

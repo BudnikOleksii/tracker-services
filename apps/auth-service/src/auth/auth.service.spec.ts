@@ -131,12 +131,12 @@ describe('AuthService - login lockout integration', () => {
       });
       expect.unreachable('Should have thrown');
     } catch {
-      expect(lockoutService.recordAttempt).toHaveBeenCalledWith(
-        'user-1',
-        false,
-        '1.2.3.4',
-        'Mozilla',
-      );
+      expect(lockoutService.recordAttempt).toHaveBeenCalledWith({
+        userId: 'user-1',
+        successful: false,
+        ipAddress: '1.2.3.4',
+        userAgent: 'Mozilla',
+      });
     }
   });
 
@@ -156,12 +156,12 @@ describe('AuthService - login lockout integration', () => {
     });
 
     expect(result.accessToken).toBeDefined();
-    expect(lockoutService.recordAttempt).toHaveBeenCalledWith(
-      'user-1',
-      true,
-      '1.2.3.4',
-      'Mozilla',
-    );
+    expect(lockoutService.recordAttempt).toHaveBeenCalledWith({
+      userId: 'user-1',
+      successful: true,
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla',
+    });
     expect(suspiciousLoginService.checkAndNotify).toHaveBeenCalledWith({
       userId: 'user-1',
       email: 'test@example.com',

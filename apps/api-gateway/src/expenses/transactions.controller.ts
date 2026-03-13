@@ -66,11 +66,11 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Body() dto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return sendWithTimeout<TransactionResponseDto>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.CREATE_TRANSACTION },
-      { userId: user.id, ...dto },
-    );
+    return sendWithTimeout<TransactionResponseDto>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.CREATE_TRANSACTION },
+      payload: { userId: user.id, ...dto },
+    });
   }
 
   @Get()
@@ -100,11 +100,11 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Query() query: TransactionQueryDto,
   ): Promise<PaginatedResponseDto<TransactionResponseDto>> {
-    return sendWithTimeout<PaginatedResponseDto<TransactionResponseDto>>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ALL_TRANSACTIONS },
-      { userId: user.id, ...query },
-    );
+    return sendWithTimeout<PaginatedResponseDto<TransactionResponseDto>>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ALL_TRANSACTIONS },
+      payload: { userId: user.id, ...query },
+    });
   }
 
   @Get('admin/test')
@@ -119,11 +119,11 @@ export class TransactionsController {
   async adminTest(
     @CurrentUser() user: { id: string },
   ): Promise<{ ok: boolean }> {
-    await sendWithTimeout(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.ADMIN_TEST_TRANSACTION },
-      { userId: user.id },
-    );
+    await sendWithTimeout({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.ADMIN_TEST_TRANSACTION },
+      payload: { userId: user.id },
+    });
 
     return { ok: true };
   }
@@ -142,11 +142,11 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Query() query: TransactionStatisticsQueryDto,
   ): Promise<TransactionStatisticsResponseDto> {
-    return sendWithTimeout<TransactionStatisticsResponseDto>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.GET_TRANSACTION_STATISTICS },
-      { userId: user.id, ...query },
-    );
+    return sendWithTimeout<TransactionStatisticsResponseDto>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.GET_TRANSACTION_STATISTICS },
+      payload: { userId: user.id, ...query },
+    });
   }
 
   @Get(':id')
@@ -165,11 +165,11 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<TransactionResponseDto> {
-    return sendWithTimeout<TransactionResponseDto>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ONE_TRANSACTION },
-      { userId: user.id, id },
-    );
+    return sendWithTimeout<TransactionResponseDto>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ONE_TRANSACTION },
+      payload: { userId: user.id, id },
+    });
   }
 
   @Patch(':id')
@@ -190,11 +190,11 @@ export class TransactionsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    return sendWithTimeout<TransactionResponseDto>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.UPDATE_TRANSACTION },
-      { userId: user.id, id, ...dto },
-    );
+    return sendWithTimeout<TransactionResponseDto>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.UPDATE_TRANSACTION },
+      payload: { userId: user.id, id, ...dto },
+    });
   }
 
   @Delete(':id')
@@ -213,10 +213,10 @@ export class TransactionsController {
     @CurrentUser() user: { id: string },
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<void> {
-    await sendWithTimeout(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.REMOVE_TRANSACTION },
-      { userId: user.id, id },
-    );
+    await sendWithTimeout({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.REMOVE_TRANSACTION },
+      payload: { userId: user.id, id },
+    });
   }
 }

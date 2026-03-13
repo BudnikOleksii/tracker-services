@@ -59,12 +59,17 @@ export class LockoutService {
     return { locked: false, retryAfterSeconds: 0 };
   }
 
-  async recordAttempt(
-    userId: string,
-    successful: boolean,
-    ipAddress?: string,
-    userAgent?: string,
-  ): Promise<void> {
+  async recordAttempt({
+    userId,
+    successful,
+    ipAddress,
+    userAgent,
+  }: {
+    userId: string;
+    successful: boolean;
+    ipAddress?: string;
+    userAgent?: string;
+  }): Promise<void> {
     await this.loginAttemptsRepository.recordAttempt({
       userId,
       successful,

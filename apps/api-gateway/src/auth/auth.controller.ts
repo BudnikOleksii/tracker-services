@@ -29,7 +29,6 @@ import {
 import type {
   AuthLoginPayload,
   AuthLogoutAllPayload,
-  AuthLogoutPayload,
   AuthRefreshTokensPayload,
   AuthRegisterPayload,
   AuthVerifyEmailPayload,
@@ -77,11 +76,11 @@ export class AuthController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.get('user-agent');
 
-    return sendWithTimeout<UserResponseDto, AuthRegisterPayload>(
-      this.authClient,
-      { cmd: MESSAGE_PATTERNS.AUTH.REGISTER },
-      { ...dto, ipAddress, userAgent },
-    );
+    return sendWithTimeout<UserResponseDto, AuthRegisterPayload>({
+      client: this.authClient,
+      pattern: { cmd: MESSAGE_PATTERNS.AUTH.REGISTER },
+      payload: { ...dto, ipAddress, userAgent },
+    });
   }
 
   @Public()
@@ -96,11 +95,11 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Email successfully verified' })
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   async verifyEmail(@Body() dto: VerifyEmailDto): Promise<{ message: string }> {
-    return sendWithTimeout<{ message: string }, AuthVerifyEmailPayload>(
-      this.authClient,
-      { cmd: MESSAGE_PATTERNS.AUTH.VERIFY_EMAIL },
-      { token: dto.token },
-    );
+    return sendWithTimeout<{ message: string }, AuthVerifyEmailPayload>({
+      client: this.authClient,
+      pattern: { cmd: MESSAGE_PATTERNS.AUTH.VERIFY_EMAIL },
+      payload: { token: dto.token },
+    });
   }
 
   @Public()
@@ -128,11 +127,11 @@ export class AuthController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.get('user-agent');
 
-    const result = await sendWithTimeout<AuthResponse, AuthLoginPayload>(
-      this.authClient,
-      { cmd: MESSAGE_PATTERNS.AUTH.LOGIN },
-      { ...dto, ipAddress, userAgent },
-    );
+    const result = await sendWithTimeout<AuthResponse, AuthLoginPayload>({
+      client: this.authClient,
+      pattern: { cmd: MESSAGE_PATTERNS.AUTH.LOGIN },
+      payload: { ...dto, ipAddress, userAgent },
+    });
 
     this.setRefreshTokenCookie(res, result.refreshToken);
 
@@ -180,11 +179,11 @@ export class AuthController {
     const result = await sendWithTimeout<
       AuthRefreshResponse,
       AuthRefreshTokensPayload
-    >(
-      this.authClient,
-      { cmd: MESSAGE_PATTERNS.AUTH.REFRESH },
-      { refreshToken, ipAddress, userAgent },
-    );
+    >({
+      client: this.authClient,
+      pattern: { cmd: MESSAGE_PATTERNS.AUTH.REFRESH },
+      payload: { refreshToken, ipAddress, userAgent },
+    });
 
     this.setRefreshTokenCookie(res, result.refreshToken);
 
@@ -210,11 +209,11 @@ export class AuthController {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
 
     if (refreshToken) {
-      await sendWithTimeout<unknown>(
-        this.authClient,
-        { cmd: MESSAGE_PATTERNS.AUTH.LOGOUT },
-        { refreshToken } satisfies AuthLogoutPayload,
-      );
+      await sendWithTimeout<unknown>({
+        client: this.authClient,
+        pattern: { cmd: MESSAGE_PATTERNS.AUTH.LOGOUT },
+        payload: { refreshToken },
+      });
     }
 
     res.clearCookie('refreshToken');
@@ -234,11 +233,11 @@ export class AuthController {
   async logoutAll(
     @CurrentUser() user: { id: string },
   ): Promise<{ message: string }> {
-    return sendWithTimeout<{ message: string }, AuthLogoutAllPayload>(
-      this.authClient,
-      { cmd: MESSAGE_PATTERNS.AUTH.LOGOUT_ALL },
-      { userId: user.id },
-    );
+    return sendWithTimeout<{ message: string }, AuthLogoutAllPayload>({
+      client: this.authClient,
+      pattern: { cmd: MESSAGE_PATTERNS.AUTH.LOGOUT_ALL },
+      payload: { userId: user.id },
+    });
   }
 
   private setRefreshTokenCookie(res: Response, refreshToken: string): void {

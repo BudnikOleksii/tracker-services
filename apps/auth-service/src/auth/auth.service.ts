@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
 import { randomUUID } from 'crypto';
@@ -27,6 +27,9 @@ const EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
+  // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly refreshTokensRepository: RefreshTokensRepository,
@@ -127,12 +130,19 @@ export class AuthService {
       user.passwordHash,
     );
     if (!isPasswordValid) {
-      await this.lockoutService.recordAttempt(
-        user.id,
-        false,
-        data.ipAddress,
-        data.userAgent,
-      );
+      await this.lockoutService
+        .recordAttempt({
+          userId: user.id,
+          successful: false,
+          ipAddress: data.ipAddress,
+          userAgent: data.userAgent,
+        })
+        .catch((error) => {
+          this.logger.error(
+            `Failed to record failed login attempt for user ${user.id}`,
+            error instanceof Error ? error.stack : error,
+          );
+        });
       throw new RpcException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Invalid credentials',
@@ -146,12 +156,19 @@ export class AuthService {
       });
     }
 
-    await this.lockoutService.recordAttempt(
-      user.id,
-      true,
-      data.ipAddress,
-      data.userAgent,
-    );
+    await this.lockoutService
+      .recordAttempt({
+        userId: user.id,
+        successful: true,
+        ipAddress: data.ipAddress,
+        userAgent: data.userAgent,
+      })
+      .catch((error) => {
+        this.logger.error(
+          `Failed to record successful login attempt for user ${user.id}`,
+          error instanceof Error ? error.stack : error,
+        );
+      });
 
     this.suspiciousLoginService
       .checkAndNotify({
@@ -163,12 +180,12 @@ export class AuthService {
       .catch(() => undefined);
 
     const tokens = await this.generateTokens(user);
-    await this.storeRefreshToken(
-      user.id,
-      tokens.refreshToken,
-      data.ipAddress,
-      data.userAgent,
-    );
+    await this.storeRefreshToken({
+      userId: user.id,
+      token: tokens.refreshToken,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+    });
 
     return {
       accessToken: tokens.accessToken,
@@ -216,12 +233,12 @@ export class AuthService {
     await this.refreshTokensRepository.revokeByToken(data.refreshToken);
 
     const tokens = await this.generateTokens(user);
-    const newTokenRecord = await this.storeRefreshToken(
-      user.id,
-      tokens.refreshToken,
-      data.ipAddress,
-      data.userAgent,
-    );
+    const newTokenRecord = await this.storeRefreshToken({
+      userId: user.id,
+      token: tokens.refreshToken,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+    });
 
     await this.refreshTokensRepository.markReplaced(
       existingToken.id,
@@ -271,12 +288,17 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  private async storeRefreshToken(
-    userId: string,
-    token: string,
-    ipAddress?: string,
-    userAgent?: string,
-  ) {
+  private async storeRefreshToken({
+    userId,
+    token,
+    ipAddress,
+    userAgent,
+  }: {
+    userId: string;
+    token: string;
+    ipAddress?: string;
+    userAgent?: string;
+  }) {
     const expiresAt = this.calculateRefreshTokenExpiry();
 
     return this.refreshTokensRepository.create({
@@ -333,6 +355,6 @@ export class AuthService {
     const text = `Please verify your email by using this token: ${token}`;
     const html = `<p>Please verify your email by using this token: <strong>${token}</strong></p>`;
 
-    await this.emailService.sendEmail(email, subject, text, html);
+    await this.emailService.sendEmail({ to: email, subject, text, html });
   }
 }
