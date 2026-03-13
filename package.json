@@ -20,7 +20,7 @@
     "husky": "9.1.7",
     "lint-staged": "16.2.7",
     "prettier": "3.8.1",
-    "rulesync": "7.6.3",
+    "rulesync": "7.18.2",
     "turbo": "2.8.10",
     "typescript": "5.9.3"
   },
