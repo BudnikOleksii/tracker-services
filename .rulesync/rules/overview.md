@@ -7,6 +7,5 @@ globs: ['**/*']
 
 ## General Guidelines
 
-- Always list applied rules for current query.
 - All package versions must be exact (no ^ or ~ prefixes).
-- Do NOT leave comments
+- Prefer self documented code
