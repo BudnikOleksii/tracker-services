@@ -3,8 +3,8 @@
   "hooks": {
     "postToolUse": [
       {
-        "matcher": "Write|Edit",
-        "command": ".rulesync/hooks/format.sh"
+        "command": ".rulesync/hooks/format.sh",
+        "matcher": "Write|Edit"
       }
     ]
   }

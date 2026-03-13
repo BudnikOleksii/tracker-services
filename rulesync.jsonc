@@ -1,6 +1,7 @@
 {
   "targets": [
-    "cursor"
+    "cursor",
+    "claudecode"
   ],
   "features": [
     "rules",
