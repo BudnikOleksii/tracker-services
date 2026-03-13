@@ -45,4 +45,8 @@ export {
   validateCurrencyCode,
 } from './utils/currency.util';
 export { formatDate, isValidDate, parseDate } from './utils/date.util';
+export {
+  validatePasswordComplexity,
+  type PasswordValidationResult,
+} from './utils/password.util';
 export { createSwaggerDocumentBuilder } from './utils/swagger.util';

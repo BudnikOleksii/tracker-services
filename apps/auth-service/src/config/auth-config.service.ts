@@ -31,4 +31,16 @@ export class AuthConfigService {
   get jwtRefreshExpiresIn(): string {
     return this.auth.jwtRefreshExpiresIn;
   }
+
+  get maxFailedAttempts(): number {
+    return this.auth.maxFailedAttempts;
+  }
+
+  get lockoutBaseMinutes(): number {
+    return this.auth.lockoutBaseMinutes;
+  }
+
+  get suspiciousLoginEnabled(): boolean {
+    return this.auth.suspiciousLoginEnabled;
+  }
 }

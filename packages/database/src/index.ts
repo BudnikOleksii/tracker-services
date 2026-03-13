@@ -3,6 +3,8 @@ import {
   refreshTokens,
   transactionCategories,
   transactions,
+  loginAttempts,
+  knownDevices,
   countryCodeEnum,
   currencyCodeEnum,
   transactionTypeEnum,
@@ -18,6 +20,10 @@ export {
   transactionCategoriesRelations,
   transactions,
   transactionsRelations,
+  loginAttempts,
+  loginAttemptsRelations,
+  knownDevices,
+  knownDevicesRelations,
 } from './schema';
 
 export type { DrizzleDB, createDrizzleClient } from './client';
@@ -63,6 +69,12 @@ export type NewTransactionCategory = typeof transactionCategories.$inferInsert;
 
 export type Transaction = typeof transactions.$inferSelect;
 export type NewTransaction = typeof transactions.$inferInsert;
+
+export type LoginAttempt = typeof loginAttempts.$inferSelect;
+export type NewLoginAttempt = typeof loginAttempts.$inferInsert;
+
+export type KnownDevice = typeof knownDevices.$inferSelect;
+export type NewKnownDevice = typeof knownDevices.$inferInsert;
 
 export const TRANSACTION_TYPES = transactionTypeEnum.enumValues;
 export const COUNTRY_CODES = countryCodeEnum.enumValues;

@@ -18,6 +18,9 @@ import { EmailService } from '@tracker/shared';
 import { AuthConfigService } from '../config/auth-config.service';
 import { UsersRepository } from './repositories/users.repository';
 import { RefreshTokensRepository } from './repositories/refresh-tokens.repository';
+import { HibpService } from './hibp.service';
+import { LockoutService } from './lockout.service';
+import { SuspiciousLoginService } from './suspicious-login.service';
 
 const BCRYPT_SALT_ROUNDS = 12;
 const EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
@@ -30,6 +33,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly authConfigService: AuthConfigService,
+    private readonly hibpService: HibpService,
+    private readonly lockoutService: LockoutService,
+    private readonly suspiciousLoginService: SuspiciousLoginService,
   ) {}
 
   async register(data: AuthRegisterPayload): Promise<AuthUser> {
@@ -38,6 +44,15 @@ export class AuthService {
       throw new RpcException({
         statusCode: HttpStatus.CONFLICT,
         message: 'User with this email already exists',
+      });
+    }
+
+    const isBreached = await this.hibpService.isPasswordBreached(data.password);
+    if (isBreached) {
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message:
+          'This password has appeared in a data breach. Please choose a different password.',
       });
     }
 
@@ -97,11 +112,27 @@ export class AuthService {
       });
     }
 
+    const lockoutStatus = await this.lockoutService.checkLockout(user.id);
+    if (lockoutStatus.locked) {
+      throw new RpcException({
+        statusCode: HttpStatus.TOO_MANY_REQUESTS,
+        message:
+          'Account is temporarily locked due to too many failed login attempts',
+        retryAfter: lockoutStatus.retryAfterSeconds,
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(
       data.password,
       user.passwordHash,
     );
     if (!isPasswordValid) {
+      await this.lockoutService.recordAttempt(
+        user.id,
+        false,
+        data.ipAddress,
+        data.userAgent,
+      );
       throw new RpcException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Invalid credentials',
@@ -114,6 +145,17 @@ export class AuthService {
         message: 'Email not verified',
       });
     }
+
+    await this.lockoutService.recordAttempt(
+      user.id,
+      true,
+      data.ipAddress,
+      data.userAgent,
+    );
+
+    this.suspiciousLoginService
+      .checkAndNotify(user.id, user.email, data.ipAddress, data.userAgent)
+      .catch(() => undefined);
 
     const tokens = await this.generateTokens(user);
     await this.storeRefreshToken(

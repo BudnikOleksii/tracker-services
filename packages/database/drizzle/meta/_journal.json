@@ -8,6 +8,13 @@
       "when": 1771759708293,
       "tag": "0000_safe_mindworm",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773426347764,
+      "tag": "0001_add-login-attempts-and-known-devices",
+      "breakpoints": true
     }
   ]
 }

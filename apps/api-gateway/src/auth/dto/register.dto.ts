@@ -4,10 +4,31 @@ import {
   MinLength,
   IsOptional,
   IsIn,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type { CountryCode, CurrencyCode } from '@tracker/database';
 import { COUNTRY_CODES, CURRENCY_CODES } from '@tracker/database';
+import { validatePasswordComplexity } from '@tracker/shared';
+
+@ValidatorConstraint({ name: 'passwordComplexity', async: false })
+class PasswordComplexityConstraint implements ValidatorConstraintInterface {
+  private errors: string[] = [];
+
+  validate(password: string): boolean {
+    const result = validatePasswordComplexity(password);
+    this.errors = result.errors;
+
+    return result.valid;
+  }
+
+  defaultMessage(_args: ValidationArguments): string {
+    return this.errors.join('; ');
+  }
+}
 
 export class RegisterDto {
   @ApiProperty({
@@ -24,6 +45,7 @@ export class RegisterDto {
   })
   @IsString()
   @MinLength(8)
+  @Validate(PasswordComplexityConstraint)
   password!: string;
 
   @ApiPropertyOptional({

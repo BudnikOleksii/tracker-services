@@ -5,6 +5,9 @@ export interface AuthConfig {
   jwtRefreshSecret: string;
   jwtAccessExpiresIn: string;
   jwtRefreshExpiresIn: string;
+  maxFailedAttempts: number;
+  lockoutBaseMinutes: number;
+  suspiciousLoginEnabled: boolean;
 }
 
 export const authConfigSchema = Joi.object<AuthConfig>({
@@ -12,4 +15,7 @@ export const authConfigSchema = Joi.object<AuthConfig>({
   jwtRefreshSecret: Joi.string().min(1).required(),
   jwtAccessExpiresIn: Joi.string().min(1).required(),
   jwtRefreshExpiresIn: Joi.string().min(1).required(),
+  maxFailedAttempts: Joi.number().integer().min(1).required(),
+  lockoutBaseMinutes: Joi.number().integer().min(1).required(),
+  suspiciousLoginEnabled: Joi.boolean().required(),
 });

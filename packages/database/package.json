@@ -19,7 +19,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file=.env --import tsx src/migrate.ts",
     "db:seed": "node --env-file=.env --import tsx src/seeds/index.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@nestjs/common": "11.1.14",

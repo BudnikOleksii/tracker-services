@@ -7,9 +7,11 @@
     "build": "nest build",
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@nestjs/axios": "4.0.1",
     "@nestjs/common": "11.1.14",
     "@nestjs/config": "4.0.2",
     "@nestjs/core": "11.1.14",
@@ -17,6 +19,7 @@
     "@nestjs/microservices": "11.1.14",
     "@tracker/database": "workspace:*",
     "@tracker/shared": "workspace:*",
+    "axios": "1.13.6",
     "bcrypt": "6.0.0",
     "joi": "18.0.1",
     "pg": "8.18.0",
