@@ -9,6 +9,7 @@ describe('SuspiciousLoginService', () => {
   let service: SuspiciousLoginService;
   let knownDevicesRepository: {
     insertDeviceIfNew: ReturnType<typeof vi.fn>;
+    upsertDevice: ReturnType<typeof vi.fn>;
   };
   let emailService: { sendEmail: ReturnType<typeof vi.fn> };
   let authConfigService: { suspiciousLoginEnabled: boolean };
@@ -16,6 +17,7 @@ describe('SuspiciousLoginService', () => {
   beforeEach(() => {
     knownDevicesRepository = {
       insertDeviceIfNew: vi.fn(),
+      upsertDevice: vi.fn().mockResolvedValue(undefined),
     };
     emailService = { sendEmail: vi.fn().mockResolvedValue(undefined) };
     authConfigService = { suspiciousLoginEnabled: true };
@@ -48,7 +50,7 @@ describe('SuspiciousLoginService', () => {
     });
   });
 
-  it('should not send email for a known device', async () => {
+  it('should not send email for a known device but should refresh lastSeenAt', async () => {
     knownDevicesRepository.insertDeviceIfNew.mockResolvedValue(false);
 
     await service.checkAndNotify({
@@ -61,6 +63,11 @@ describe('SuspiciousLoginService', () => {
     await new Promise((r) => setTimeout(r, 10));
 
     expect(emailService.sendEmail).not.toHaveBeenCalled();
+    expect(knownDevicesRepository.upsertDevice).toHaveBeenCalledWith({
+      userId: 'user-1',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla/5.0',
+    });
   });
 
   it('should call insertDeviceIfNew with correct args', async () => {

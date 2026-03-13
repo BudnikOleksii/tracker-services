@@ -177,7 +177,12 @@ export class AuthService {
         ipAddress: data.ipAddress,
         userAgent: data.userAgent,
       })
-      .catch(() => undefined);
+      .catch((error) => {
+        this.logger.error(
+          `Failed to check suspicious login for user ${user.id}`,
+          error instanceof Error ? error.stack : error,
+        );
+      });
 
     const tokens = await this.generateTokens(user);
     await this.storeRefreshToken({

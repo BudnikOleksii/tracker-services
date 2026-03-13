@@ -170,6 +170,78 @@ describe('AuthService - login lockout integration', () => {
     });
   });
 
+  it('should still throw invalid credentials when recordAttempt fails on invalid password', async () => {
+    usersRepository.findByEmail.mockResolvedValue(mockUser);
+    lockoutService.checkLockout.mockResolvedValue({
+      locked: false,
+      retryAfterSeconds: 0,
+    });
+    (bcrypt.compare as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+    lockoutService.recordAttempt.mockRejectedValue(
+      new Error('Redis connection lost'),
+    );
+
+    try {
+      await authService.login({
+        email: 'test@example.com',
+        password: 'wrong-password',
+        ipAddress: '1.2.3.4',
+        userAgent: 'Mozilla',
+      });
+      expect.unreachable('Should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(RpcException);
+      const rpcError = (error as RpcException).getError() as Record<
+        string,
+        unknown
+      >;
+      expect(rpcError['statusCode']).toBe(HttpStatus.UNAUTHORIZED);
+      expect(rpcError['message']).toBe('Invalid credentials');
+      expect(lockoutService.recordAttempt).toHaveBeenCalledWith({
+        userId: 'user-1',
+        successful: false,
+        ipAddress: '1.2.3.4',
+        userAgent: 'Mozilla',
+      });
+    }
+  });
+
+  it('should still return accessToken when recordAttempt and checkAndNotify fail on valid login', async () => {
+    usersRepository.findByEmail.mockResolvedValue(mockUser);
+    lockoutService.checkLockout.mockResolvedValue({
+      locked: false,
+      retryAfterSeconds: 0,
+    });
+    (bcrypt.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+    lockoutService.recordAttempt.mockRejectedValue(
+      new Error('Redis connection lost'),
+    );
+    suspiciousLoginService.checkAndNotify.mockRejectedValue(
+      new Error('Notification service unavailable'),
+    );
+
+    const result = await authService.login({
+      email: 'test@example.com',
+      password: 'ValidPass1!',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla',
+    });
+
+    expect(result.accessToken).toBeDefined();
+    expect(lockoutService.recordAttempt).toHaveBeenCalledWith({
+      userId: 'user-1',
+      successful: true,
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla',
+    });
+    expect(suspiciousLoginService.checkAndNotify).toHaveBeenCalledWith({
+      userId: 'user-1',
+      email: 'test@example.com',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla',
+    });
+  });
+
   it('should check lockout before validating credentials', async () => {
     usersRepository.findByEmail.mockResolvedValue(mockUser);
     lockoutService.checkLockout.mockResolvedValue({

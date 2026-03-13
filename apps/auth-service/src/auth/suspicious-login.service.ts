@@ -56,6 +56,12 @@ export class SuspiciousLoginService {
           );
         },
       );
+    } else {
+      await this.knownDevicesRepository.upsertDevice({
+        userId,
+        ipAddress,
+        userAgent,
+      });
     }
   }
 
