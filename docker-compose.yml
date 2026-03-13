@@ -13,6 +13,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - tracker-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-tracker}']
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   redis:
     image: redis:7.4.3-alpine
@@ -42,7 +47,80 @@ services:
     networks:
       - tracker-network
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: tracker-api-gateway
+    restart: unless-stopped
+    profiles: [app]
+    env_file: .env.docker
+    ports:
+      - '3000:3000'
+    networks:
+      - tracker-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      users-service:
+        condition: service_started
+      expenses-service:
+        condition: service_started
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    container_name: tracker-auth-service
+    restart: unless-stopped
+    profiles: [app]
+    env_file: .env.docker
+    networks:
+      - tracker-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  users-service:
+    build:
+      context: .
+      dockerfile: apps/users-service/Dockerfile
+    container_name: tracker-users-service
+    restart: unless-stopped
+    profiles: [app]
+    env_file: .env.docker
+    networks:
+      - tracker-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  expenses-service:
+    build:
+      context: .
+      dockerfile: apps/expenses-service/Dockerfile
+    container_name: tracker-expenses-service
+    restart: unless-stopped
+    profiles: [app]
+    env_file: .env.docker
+    networks:
+      - tracker-network
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
