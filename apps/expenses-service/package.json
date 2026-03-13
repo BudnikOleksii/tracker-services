@@ -7,7 +7,8 @@
     "build": "nest build",
     "check-types": "tsc --noEmit",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@nestjs/common": "11.1.14",

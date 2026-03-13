@@ -32,13 +32,12 @@ async function seedDatabase(): Promise<void> {
       transactionsData,
     );
 
-    await createTransactions(
-      db,
-      user.id,
+    await createTransactions(db, {
+      userId: user.id,
       transactionsData,
-      createdCategories,
-      createdSubcategories,
-    );
+      categories: createdCategories,
+      subcategories: createdSubcategories,
+    });
 
     console.log('Database seeding completed successfully!');
 

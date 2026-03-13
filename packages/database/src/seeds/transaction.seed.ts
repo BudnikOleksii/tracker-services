@@ -9,10 +9,17 @@ const BATCH_SIZE = 100;
 
 export async function createTransactions(
   db: DrizzleDB,
-  userId: string,
-  transactionsData: TransactionData[],
-  categories: Map<string, string>,
-  subcategories: Map<string, string>,
+  {
+    userId,
+    transactionsData,
+    categories,
+    subcategories,
+  }: {
+    userId: string;
+    transactionsData: TransactionData[];
+    categories: Map<string, string>;
+    subcategories: Map<string, string>;
+  },
 ): Promise<void> {
   console.log('Creating transactions...');
 

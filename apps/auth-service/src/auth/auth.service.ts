@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
 import { randomUUID } from 'crypto';
@@ -18,18 +18,27 @@ import { EmailService } from '@tracker/shared';
 import { AuthConfigService } from '../config/auth-config.service';
 import { UsersRepository } from './repositories/users.repository';
 import { RefreshTokensRepository } from './repositories/refresh-tokens.repository';
+import { HibpService } from './hibp.service';
+import { LockoutService } from './lockout.service';
+import { SuspiciousLoginService } from './suspicious-login.service';
 
 const BCRYPT_SALT_ROUNDS = 12;
 const EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
+  // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly refreshTokensRepository: RefreshTokensRepository,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly authConfigService: AuthConfigService,
+    private readonly hibpService: HibpService,
+    private readonly lockoutService: LockoutService,
+    private readonly suspiciousLoginService: SuspiciousLoginService,
   ) {}
 
   async register(data: AuthRegisterPayload): Promise<AuthUser> {
@@ -38,6 +47,15 @@ export class AuthService {
       throw new RpcException({
         statusCode: HttpStatus.CONFLICT,
         message: 'User with this email already exists',
+      });
+    }
+
+    const isBreached = await this.hibpService.isPasswordBreached(data.password);
+    if (isBreached) {
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message:
+          'This password has appeared in a data breach. Please choose a different password.',
       });
     }
 
@@ -97,11 +115,35 @@ export class AuthService {
       });
     }
 
+    const lockoutStatus = await this.lockoutService.checkLockout(user.id);
+    if (lockoutStatus.locked) {
+      this.logger.warn(
+        `Login blocked by lockout for user ${user.id}, retryAfter=${lockoutStatus.retryAfterSeconds}s`,
+      );
+      throw new RpcException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid credentials',
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(
       data.password,
       user.passwordHash,
     );
     if (!isPasswordValid) {
+      await this.lockoutService
+        .recordAttempt({
+          userId: user.id,
+          successful: false,
+          ipAddress: data.ipAddress,
+          userAgent: data.userAgent,
+        })
+        .catch((error) => {
+          this.logger.error(
+            `Failed to record failed login attempt for user ${user.id}`,
+            error instanceof Error ? error.stack : error,
+          );
+        });
       throw new RpcException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Invalid credentials',
@@ -115,13 +157,41 @@ export class AuthService {
       });
     }
 
+    await this.lockoutService
+      .recordAttempt({
+        userId: user.id,
+        successful: true,
+        ipAddress: data.ipAddress,
+        userAgent: data.userAgent,
+      })
+      .catch((error) => {
+        this.logger.error(
+          `Failed to record successful login attempt for user ${user.id}`,
+          error instanceof Error ? error.stack : error,
+        );
+      });
+
+    this.suspiciousLoginService
+      .checkAndNotify({
+        userId: user.id,
+        email: user.email,
+        ipAddress: data.ipAddress,
+        userAgent: data.userAgent,
+      })
+      .catch((error) => {
+        this.logger.error(
+          `Failed to check suspicious login for user ${user.id}`,
+          error instanceof Error ? error.stack : error,
+        );
+      });
+
     const tokens = await this.generateTokens(user);
-    await this.storeRefreshToken(
-      user.id,
-      tokens.refreshToken,
-      data.ipAddress,
-      data.userAgent,
-    );
+    await this.storeRefreshToken({
+      userId: user.id,
+      token: tokens.refreshToken,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+    });
 
     return {
       accessToken: tokens.accessToken,
@@ -169,12 +239,12 @@ export class AuthService {
     await this.refreshTokensRepository.revokeByToken(data.refreshToken);
 
     const tokens = await this.generateTokens(user);
-    const newTokenRecord = await this.storeRefreshToken(
-      user.id,
-      tokens.refreshToken,
-      data.ipAddress,
-      data.userAgent,
-    );
+    const newTokenRecord = await this.storeRefreshToken({
+      userId: user.id,
+      token: tokens.refreshToken,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+    });
 
     await this.refreshTokensRepository.markReplaced(
       existingToken.id,
@@ -224,12 +294,17 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  private async storeRefreshToken(
-    userId: string,
-    token: string,
-    ipAddress?: string,
-    userAgent?: string,
-  ) {
+  private async storeRefreshToken({
+    userId,
+    token,
+    ipAddress,
+    userAgent,
+  }: {
+    userId: string;
+    token: string;
+    ipAddress?: string;
+    userAgent?: string;
+  }) {
     const expiresAt = this.calculateRefreshTokenExpiry();
 
     return this.refreshTokensRepository.create({
@@ -286,6 +361,6 @@ export class AuthService {
     const text = `Please verify your email by using this token: ${token}`;
     const html = `<p>Please verify your email by using this token: <strong>${token}</strong></p>`;
 
-    await this.emailService.sendEmail(email, subject, text, html);
+    await this.emailService.sendEmail({ to: email, subject, text, html });
   }
 }

@@ -54,11 +54,11 @@ export class UsersController {
   async getCurrentUser(
     @CurrentUser() user: { id: string },
   ): Promise<UserResponseDto> {
-    return sendWithTimeout<UserResponseDto>(
-      this.usersClient,
-      { cmd: MESSAGE_PATTERNS.USERS.GET_USER },
-      { userId: user.id },
-    );
+    return sendWithTimeout<UserResponseDto>({
+      client: this.usersClient,
+      pattern: { cmd: MESSAGE_PATTERNS.USERS.GET_USER },
+      payload: { userId: user.id },
+    });
   }
 
   @Patch('me')
@@ -76,11 +76,11 @@ export class UsersController {
     @CurrentUser() user: { id: string },
     @Body() dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return sendWithTimeout<UserResponseDto>(
-      this.usersClient,
-      { cmd: MESSAGE_PATTERNS.USERS.UPDATE_PROFILE },
-      { userId: user.id, ...dto },
-    );
+    return sendWithTimeout<UserResponseDto>({
+      client: this.usersClient,
+      pattern: { cmd: MESSAGE_PATTERNS.USERS.UPDATE_PROFILE },
+      payload: { userId: user.id, ...dto },
+    });
   }
 
   @Get(':id')
@@ -102,11 +102,11 @@ export class UsersController {
   })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
-    return sendWithTimeout<UserResponseDto>(
-      this.usersClient,
-      { cmd: MESSAGE_PATTERNS.USERS.GET_USER_BY_ID },
-      { id },
-    );
+    return sendWithTimeout<UserResponseDto>({
+      client: this.usersClient,
+      pattern: { cmd: MESSAGE_PATTERNS.USERS.GET_USER_BY_ID },
+      payload: { id },
+    });
   }
 
   @Patch(':id/role')
@@ -131,10 +131,10 @@ export class UsersController {
     @Param('id') id: string,
     @Body() dto: UpdateRoleDto,
   ): Promise<UserResponseDto> {
-    return sendWithTimeout<UserResponseDto>(
-      this.usersClient,
-      { cmd: MESSAGE_PATTERNS.USERS.UPDATE_USER_ROLE },
-      { id, role: dto.role },
-    );
+    return sendWithTimeout<UserResponseDto>({
+      client: this.usersClient,
+      pattern: { cmd: MESSAGE_PATTERNS.USERS.UPDATE_USER_ROLE },
+      payload: { id, role: dto.role },
+    });
   }
 }

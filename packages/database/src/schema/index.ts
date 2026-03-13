@@ -15,3 +15,7 @@ export {
 } from './transaction-categories';
 
 export { transactions, transactionsRelations } from './transactions';
+
+export { loginAttempts, loginAttemptsRelations } from './login-attempts';
+
+export { knownDevices, knownDevicesRelations } from './known-devices';

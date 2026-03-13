@@ -57,11 +57,11 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Body() dto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return sendWithTimeout<CategoryResponseDto>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.CREATE_CATEGORY },
-      { userId: user.id, ...dto },
-    );
+    return sendWithTimeout<CategoryResponseDto>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.CREATE_CATEGORY },
+      payload: { userId: user.id, ...dto },
+    });
   }
 
   @Get()
@@ -86,11 +86,11 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Query() query: CategoriesQueryDto,
   ): Promise<CategoryResponseDto[]> {
-    return sendWithTimeout<CategoryResponseDto[]>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ALL_CATEGORIES },
-      { userId: user.id, type: query.type },
-    );
+    return sendWithTimeout<CategoryResponseDto[]>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ALL_CATEGORIES },
+      payload: { userId: user.id, type: query.type },
+    });
   }
 
   @Get(':id')
@@ -109,11 +109,11 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
   ): Promise<CategoryResponseDto> {
-    return sendWithTimeout<CategoryResponseDto>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ONE_CATEGORY },
-      { userId: user.id, id },
-    );
+    return sendWithTimeout<CategoryResponseDto>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.FIND_ONE_CATEGORY },
+      payload: { userId: user.id, id },
+    });
   }
 
   @Put(':id')
@@ -134,11 +134,11 @@ export class CategoriesController {
     @Param('id') id: string,
     @Body() dto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    return sendWithTimeout<CategoryResponseDto>(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.UPDATE_CATEGORY },
-      { userId: user.id, id, ...dto },
-    );
+    return sendWithTimeout<CategoryResponseDto>({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.UPDATE_CATEGORY },
+      payload: { userId: user.id, id, ...dto },
+    });
   }
 
   @Delete(':id')
@@ -157,10 +157,10 @@ export class CategoriesController {
     @CurrentUser() user: { id: string },
     @Param('id') id: string,
   ): Promise<void> {
-    await sendWithTimeout(
-      this.expensesClient,
-      { cmd: MESSAGE_PATTERNS.EXPENSES.REMOVE_CATEGORY },
-      { userId: user.id, id },
-    );
+    await sendWithTimeout({
+      client: this.expensesClient,
+      pattern: { cmd: MESSAGE_PATTERNS.EXPENSES.REMOVE_CATEGORY },
+      payload: { userId: user.id, id },
+    });
   }
 }

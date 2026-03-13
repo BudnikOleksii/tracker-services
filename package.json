@@ -7,6 +7,7 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "check-types": "turbo run check-types",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "generate-agents-rules": "rulesync generate",
     "prepare": "husky"
@@ -22,7 +23,8 @@
     "prettier": "3.8.1",
     "rulesync": "7.18.2",
     "turbo": "2.8.10",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
   },
   "engines": {
     "node": "22.15.0",

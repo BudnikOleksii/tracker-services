@@ -14,9 +14,11 @@ interface CategoryRow extends Record<string, unknown> {
 
 async function findCategory(
   db: DrizzleDB,
-  userId: string,
-  name: string,
-  parentCategoryId?: string,
+  {
+    userId,
+    name,
+    parentCategoryId,
+  }: { userId: string; name: string; parentCategoryId?: string },
 ): Promise<CategoryRow | undefined> {
   const result = parentCategoryId
     ? await db.execute<CategoryRow>(
@@ -61,12 +63,11 @@ async function createCategory(
 ): Promise<CategoryRow> {
   const categoryLevel = params.parentCategoryId ? 'subcategory' : 'category';
 
-  const existingCategory = await findCategory(
-    db,
-    params.userId,
-    params.name,
-    params.parentCategoryId,
-  );
+  const existingCategory = await findCategory(db, {
+    userId: params.userId,
+    name: params.name,
+    parentCategoryId: params.parentCategoryId,
+  });
 
   if (existingCategory) {
     console.log(`Found existing ${categoryLevel}: ${params.name}`);
