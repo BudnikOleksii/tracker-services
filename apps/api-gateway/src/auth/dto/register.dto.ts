@@ -16,17 +16,21 @@ import { validatePasswordComplexity } from '@tracker/shared';
 
 @ValidatorConstraint({ name: 'passwordComplexity', async: false })
 class PasswordComplexityConstraint implements ValidatorConstraintInterface {
-  private errors: string[] = [];
-
-  validate(password: string): boolean {
-    const result = validatePasswordComplexity(password);
-    this.errors = result.errors;
+  validate(value: string, args: ValidationArguments): boolean {
+    const result = validatePasswordComplexity(value);
+    (args.object as Record<string, unknown>)['__passwordErrors'] =
+      result.errors;
 
     return result.valid;
   }
 
-  defaultMessage(_args: ValidationArguments): string {
-    return this.errors.join('; ');
+  defaultMessage(args: ValidationArguments): string {
+    const errors =
+      ((args.object as Record<string, unknown>)['__passwordErrors'] as
+        | string[]
+        | undefined) ?? [];
+
+    return errors.join('; ');
   }
 }
 

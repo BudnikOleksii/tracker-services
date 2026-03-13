@@ -52,11 +52,22 @@ export class SuspiciousLoginService {
     }
   }
 
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   private async sendSuspiciousLoginEmail(
     email: string,
     ipAddress: string,
     userAgent: string,
   ): Promise<void> {
+    const safeIpAddress = this.escapeHtml(ipAddress);
+    const safeUserAgent = this.escapeHtml(userAgent);
     const timestamp = new Date().toISOString();
     const subject = 'New sign-in to your account';
     const text = [
@@ -72,8 +83,8 @@ export class SuspiciousLoginService {
     const html = [
       '<p>We noticed a sign-in to your account from an unrecognized device.</p>',
       '<table style="border-collapse: collapse; margin: 16px 0;">',
-      `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold;">IP Address</td><td style="padding: 4px 0;">${ipAddress}</td></tr>`,
-      `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold;">Device</td><td style="padding: 4px 0;">${userAgent}</td></tr>`,
+      `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold;">IP Address</td><td style="padding: 4px 0;">${safeIpAddress}</td></tr>`,
+      `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold;">Device</td><td style="padding: 4px 0;">${safeUserAgent}</td></tr>`,
       `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold;">Time</td><td style="padding: 4px 0;">${timestamp}</td></tr>`,
       '</table>',
       '<p>If this was you, you can ignore this email. If you did not sign in, please secure your account immediately.</p>',
