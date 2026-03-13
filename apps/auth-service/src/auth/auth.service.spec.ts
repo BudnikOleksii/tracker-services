@@ -162,12 +162,12 @@ describe('AuthService - login lockout integration', () => {
       '1.2.3.4',
       'Mozilla',
     );
-    expect(suspiciousLoginService.checkAndNotify).toHaveBeenCalledWith(
-      'user-1',
-      'test@example.com',
-      '1.2.3.4',
-      'Mozilla',
-    );
+    expect(suspiciousLoginService.checkAndNotify).toHaveBeenCalledWith({
+      userId: 'user-1',
+      email: 'test@example.com',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla',
+    });
   });
 
   it('should check lockout before validating credentials', async () => {

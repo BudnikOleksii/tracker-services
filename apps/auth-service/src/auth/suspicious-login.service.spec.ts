@@ -8,16 +8,14 @@ import { AuthConfigService } from '../config/auth-config.service';
 describe('SuspiciousLoginService', () => {
   let service: SuspiciousLoginService;
   let knownDevicesRepository: {
-    findDevice: ReturnType<typeof vi.fn>;
-    upsertDevice: ReturnType<typeof vi.fn>;
+    insertDeviceIfNew: ReturnType<typeof vi.fn>;
   };
   let emailService: { sendEmail: ReturnType<typeof vi.fn> };
   let authConfigService: { suspiciousLoginEnabled: boolean };
 
   beforeEach(() => {
     knownDevicesRepository = {
-      findDevice: vi.fn(),
-      upsertDevice: vi.fn(),
+      insertDeviceIfNew: vi.fn(),
     };
     emailService = { sendEmail: vi.fn().mockResolvedValue(undefined) };
     authConfigService = { suspiciousLoginEnabled: true };
@@ -30,15 +28,14 @@ describe('SuspiciousLoginService', () => {
   });
 
   it('should send email for a new device', async () => {
-    knownDevicesRepository.findDevice.mockResolvedValue(undefined);
-    knownDevicesRepository.upsertDevice.mockResolvedValue({});
+    knownDevicesRepository.insertDeviceIfNew.mockResolvedValue(true);
 
-    await service.checkAndNotify(
-      'user-1',
-      'user@example.com',
-      '1.2.3.4',
-      'Mozilla/5.0',
-    );
+    await service.checkAndNotify({
+      userId: 'user-1',
+      email: 'user@example.com',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla/5.0',
+    });
 
     // Wait for fire-and-forget email
     await new Promise((r) => setTimeout(r, 10));
@@ -52,40 +49,31 @@ describe('SuspiciousLoginService', () => {
   });
 
   it('should not send email for a known device', async () => {
-    knownDevicesRepository.findDevice.mockResolvedValue({
-      id: 'device-1',
+    knownDevicesRepository.insertDeviceIfNew.mockResolvedValue(false);
+
+    await service.checkAndNotify({
       userId: 'user-1',
+      email: 'user@example.com',
       ipAddress: '1.2.3.4',
       userAgent: 'Mozilla/5.0',
     });
-    knownDevicesRepository.upsertDevice.mockResolvedValue({});
-
-    await service.checkAndNotify(
-      'user-1',
-      'user@example.com',
-      '1.2.3.4',
-      'Mozilla/5.0',
-    );
 
     await new Promise((r) => setTimeout(r, 10));
 
     expect(emailService.sendEmail).not.toHaveBeenCalled();
   });
 
-  it('should always upsert the device record', async () => {
-    knownDevicesRepository.findDevice.mockResolvedValue({
-      id: 'device-1',
+  it('should call insertDeviceIfNew with correct args', async () => {
+    knownDevicesRepository.insertDeviceIfNew.mockResolvedValue(false);
+
+    await service.checkAndNotify({
+      userId: 'user-1',
+      email: 'user@example.com',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla/5.0',
     });
-    knownDevicesRepository.upsertDevice.mockResolvedValue({});
 
-    await service.checkAndNotify(
-      'user-1',
-      'user@example.com',
-      '1.2.3.4',
-      'Mozilla/5.0',
-    );
-
-    expect(knownDevicesRepository.upsertDevice).toHaveBeenCalledWith(
+    expect(knownDevicesRepository.insertDeviceIfNew).toHaveBeenCalledWith(
       'user-1',
       '1.2.3.4',
       'Mozilla/5.0',
@@ -95,39 +83,38 @@ describe('SuspiciousLoginService', () => {
   it('should skip when feature is disabled', async () => {
     authConfigService.suspiciousLoginEnabled = false;
 
-    await service.checkAndNotify(
-      'user-1',
-      'user@example.com',
-      '1.2.3.4',
-      'Mozilla/5.0',
-    );
+    await service.checkAndNotify({
+      userId: 'user-1',
+      email: 'user@example.com',
+      ipAddress: '1.2.3.4',
+      userAgent: 'Mozilla/5.0',
+    });
 
-    expect(knownDevicesRepository.findDevice).not.toHaveBeenCalled();
+    expect(knownDevicesRepository.insertDeviceIfNew).not.toHaveBeenCalled();
   });
 
   it('should skip when ipAddress or userAgent is missing', async () => {
-    await service.checkAndNotify(
-      'user-1',
-      'user@example.com',
-      undefined,
-      undefined,
-    );
+    await service.checkAndNotify({
+      userId: 'user-1',
+      email: 'user@example.com',
+      ipAddress: undefined,
+      userAgent: undefined,
+    });
 
-    expect(knownDevicesRepository.findDevice).not.toHaveBeenCalled();
+    expect(knownDevicesRepository.insertDeviceIfNew).not.toHaveBeenCalled();
   });
 
   it('should not fail login if email sending fails', async () => {
-    knownDevicesRepository.findDevice.mockResolvedValue(undefined);
-    knownDevicesRepository.upsertDevice.mockResolvedValue({});
+    knownDevicesRepository.insertDeviceIfNew.mockResolvedValue(true);
     emailService.sendEmail.mockRejectedValue(new Error('SMTP error'));
 
     await expect(
-      service.checkAndNotify(
-        'user-1',
-        'user@example.com',
-        '1.2.3.4',
-        'Mozilla/5.0',
-      ),
+      service.checkAndNotify({
+        userId: 'user-1',
+        email: 'user@example.com',
+        ipAddress: '1.2.3.4',
+        userAgent: 'Mozilla/5.0',
+      }),
     ).resolves.not.toThrow();
   });
 });

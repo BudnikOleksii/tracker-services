@@ -154,7 +154,12 @@ export class AuthService {
     );
 
     this.suspiciousLoginService
-      .checkAndNotify(user.id, user.email, data.ipAddress, data.userAgent)
+      .checkAndNotify({
+        userId: user.id,
+        email: user.email,
+        ipAddress: data.ipAddress,
+        userAgent: data.userAgent,
+      })
       .catch(() => undefined);
 
     const tokens = await this.generateTokens(user);

@@ -51,4 +51,24 @@ export class KnownDevicesRepository {
 
     return device as KnownDevice;
   }
+
+  async insertDeviceIfNew(
+    userId: string,
+    ipAddress: string,
+    userAgent: string,
+  ): Promise<boolean> {
+    const rows = await this.db
+      .insert(knownDevices)
+      .values({ userId, ipAddress, userAgent })
+      .onConflictDoNothing({
+        target: [
+          knownDevices.userId,
+          knownDevices.ipAddress,
+          knownDevices.userAgent,
+        ],
+      })
+      .returning({ id: knownDevices.id });
+
+    return rows.length > 0;
+  }
 }

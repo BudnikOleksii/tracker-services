@@ -14,11 +14,13 @@ import type { CountryCode, CurrencyCode } from '@tracker/database';
 import { COUNTRY_CODES, CURRENCY_CODES } from '@tracker/database';
 import { validatePasswordComplexity } from '@tracker/shared';
 
+const PASSWORD_ERRORS_KEY = '__passwordErrors';
+
 @ValidatorConstraint({ name: 'passwordComplexity', async: false })
 class PasswordComplexityConstraint implements ValidatorConstraintInterface {
   validate(value: string, args: ValidationArguments): boolean {
     const result = validatePasswordComplexity(value);
-    (args.object as Record<string, unknown>)['__passwordErrors'] =
+    (args.object as Record<string, unknown>)[PASSWORD_ERRORS_KEY] =
       result.errors;
 
     return result.valid;
@@ -26,7 +28,7 @@ class PasswordComplexityConstraint implements ValidatorConstraintInterface {
 
   defaultMessage(args: ValidationArguments): string {
     const errors =
-      ((args.object as Record<string, unknown>)['__passwordErrors'] as
+      ((args.object as Record<string, unknown>)[PASSWORD_ERRORS_KEY] as
         | string[]
         | undefined) ?? [];
 

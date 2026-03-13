@@ -4,6 +4,19 @@ import { EmailService } from '@tracker/shared';
 import { AuthConfigService } from '../config/auth-config.service';
 import { KnownDevicesRepository } from './repositories/known-devices.repository';
 
+interface CheckAndNotifyParams {
+  userId: string;
+  email: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+interface SuspiciousLoginEmailParams {
+  email: string;
+  ipAddress: string;
+  userAgent: string;
+}
+
 @Injectable()
 export class SuspiciousLoginService {
   private readonly logger = new Logger(SuspiciousLoginService.name);
@@ -14,12 +27,12 @@ export class SuspiciousLoginService {
     private readonly authConfigService: AuthConfigService,
   ) {}
 
-  async checkAndNotify(
-    userId: string,
-    email: string,
-    ipAddress?: string,
-    userAgent?: string,
-  ): Promise<void> {
+  async checkAndNotify({
+    userId,
+    email,
+    ipAddress,
+    userAgent,
+  }: CheckAndNotifyParams): Promise<void> {
     if (!this.authConfigService.suspiciousLoginEnabled) {
       return;
     }
@@ -28,20 +41,14 @@ export class SuspiciousLoginService {
       return;
     }
 
-    const existingDevice = await this.knownDevicesRepository.findDevice(
+    const isNewDevice = await this.knownDevicesRepository.insertDeviceIfNew(
       userId,
       ipAddress,
       userAgent,
     );
 
-    await this.knownDevicesRepository.upsertDevice(
-      userId,
-      ipAddress,
-      userAgent,
-    );
-
-    if (!existingDevice) {
-      this.sendSuspiciousLoginEmail(email, ipAddress, userAgent).catch(
+    if (isNewDevice) {
+      this.sendSuspiciousLoginEmail({ email, ipAddress, userAgent }).catch(
         (error) => {
           this.logger.error(
             'Failed to send suspicious login notification email',
@@ -61,11 +68,11 @@ export class SuspiciousLoginService {
       .replace(/'/g, '&#39;');
   }
 
-  private async sendSuspiciousLoginEmail(
-    email: string,
-    ipAddress: string,
-    userAgent: string,
-  ): Promise<void> {
+  private async sendSuspiciousLoginEmail({
+    email,
+    ipAddress,
+    userAgent,
+  }: SuspiciousLoginEmailParams): Promise<void> {
     const safeIpAddress = this.escapeHtml(ipAddress);
     const safeUserAgent = this.escapeHtml(userAgent);
     const timestamp = new Date().toISOString();
