@@ -326,7 +326,7 @@ jobs:
         run: pnpm test
 
   migrate:
-    needs: [test]
+    needs: [init-env, test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -337,7 +337,6 @@ jobs:
         with:
           node_version: ${{ needs.init-env.outputs.node_version }}
           pnpm_version: ${{ needs.init-env.outputs.pnpm_version }}
-
       - name: Build database package
         run: pnpm turbo run build --filter=@tracker/database...
 
