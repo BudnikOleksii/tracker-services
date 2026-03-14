@@ -20,7 +20,9 @@ async function bootstrap(): Promise<void> {
   const appConfigService = app.get(AppConfigService);
   const gatewayConfigService = app.get(GatewayConfigService);
 
-  app.setGlobalPrefix(appConfigService.app.apiPrefix);
+  app.setGlobalPrefix(appConfigService.app.apiPrefix, {
+    exclude: ['health'],
+  });
 
   app.enableVersioning({
     type: VersioningType.URI,
