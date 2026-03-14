@@ -4,7 +4,7 @@ import { DatabaseModule } from '@tracker/database';
 import { ConfigModule, AppConfigService, SharedModule } from '@tracker/shared';
 
 import authConfigFactory from './config/auth.config.factory';
-import { AuthConfigService } from './config/auth-config.service';
+import { AuthConfigModule } from './config/auth-config.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -21,9 +21,8 @@ import { AuthModule } from './auth/auth.module';
       }),
     }),
     SharedModule,
+    AuthConfigModule,
     AuthModule,
   ],
-  providers: [AuthConfigService],
-  exports: [AuthConfigService],
 })
 export class AppModule {}
