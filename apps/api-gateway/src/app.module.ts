@@ -16,6 +16,7 @@ import { RpcExceptionInterceptor } from './filters/rpc-exception.interceptor';
 import { AuthModule } from './auth/auth.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { UsersModule } from './users/users.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { UsersModule } from './users/users.module';
     ExpensesModule,
     UsersModule,
   ],
+  controllers: [HealthController],
   providers: [
     AppConfigService,
     GatewayConfigService,

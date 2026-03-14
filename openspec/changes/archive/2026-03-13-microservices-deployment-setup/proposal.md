@@ -25,4 +25,4 @@ _None — no existing spec-level requirements are changing._
 - **Code**: New Dockerfiles in each app directory, updated/extended docker-compose configuration at repo root
 - **Dependencies**: No new runtime dependencies; Docker and Docker Compose are required dev tools
 - **APIs**: No API changes — services expose the same ports, now mapped through Docker
-- **Systems**: Local development workflow gains a `docker compose up` option for the full stack; existing `pnpm dev` workflow remains unaffected
+- **Systems**: `docker compose up` starts only infrastructure (Postgres, Redis, Redis Commander); the full stack including all four microservices requires `docker compose --profile app up`. Only api-gateway is published to the host (port 3000) by default. The existing `pnpm dev` workflow remains unaffected

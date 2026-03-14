@@ -30,7 +30,7 @@ Each service gets its own Dockerfile using a multi-stage pattern: `deps → buil
 
 Add service definitions directly to the existing `docker-compose.yml`. Use profiles to separate infrastructure (`infra`) from application services (`app`) so developers can still run only Postgres + Redis when developing natively.
 
-**Why not docker-compose.override.yml?** Overlays add cognitive overhead for a small team. Profiles achieve the same selective-startup goal with a single file: `docker compose up` starts everything, `docker compose --profile infra up` starts only databases.
+**Why not docker-compose.override.yml?** Overlays add cognitive overhead for a small team. Profiles achieve the same selective-startup goal with a single file: `docker compose up` starts only databases, `docker compose --profile app up` starts the full stack.
 
 ### 3. Build context at repo root with per-service Dockerfile paths
 

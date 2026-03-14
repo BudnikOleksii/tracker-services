@@ -18,15 +18,15 @@ Each microservice (api-gateway, auth-service, users-service, expenses-service) S
 
 The `docker-compose.yml` SHALL define all four microservices alongside existing infrastructure (Postgres, Redis), with correct dependency ordering and network connectivity.
 
-#### Scenario: Full stack starts with docker compose up
+#### Scenario: Infrastructure starts by default
 
 - **WHEN** `docker compose up` is run from the repo root
-- **THEN** Postgres, Redis, and all four microservices start, and services wait for databases to be healthy before accepting connections
+- **THEN** only infrastructure services (Postgres, Redis, and Redis Commander) start; no application services are launched
 
-#### Scenario: Infrastructure-only mode via profiles
+#### Scenario: Full stack starts with the app profile
 
-- **WHEN** `docker compose --profile infra up` is run
-- **THEN** only Postgres, Redis, and Redis Commander start; no application services are launched
+- **WHEN** `docker compose --profile app up` is run from the repo root
+- **THEN** Postgres, Redis, Redis Commander, and all four microservices (api-gateway, auth-service, users-service, expenses-service) start, and the microservices wait for databases to be healthy before accepting connections
 
 ### Requirement: Services communicate over the Docker network
 
@@ -46,10 +46,16 @@ All microservices SHALL connect to the existing `tracker-network` and reference 
 
 A `.env.docker` file SHALL provide environment variables with Docker-network-appropriate defaults for all services.
 
-#### Scenario: Environment file contains Docker hostnames
+#### Scenario: Environment file contains all required variables
 
 - **WHEN** `.env.docker` is read
-- **THEN** database and cache hosts reference Docker service names (e.g., `POSTGRES_HOST=postgres`, `REDIS_HOST=redis`) instead of `localhost`
+- **THEN** it provides at minimum the following keys with Docker-friendly values:
+  - `DATABASE_URL` — full connection string using the Docker service name, e.g. `postgresql://tracker:tracker123@postgres:5432/tracker`
+  - `JWT_ACCESS_SECRET` — signing key for access tokens, e.g. `docker-access-secret`
+  - `JWT_REFRESH_SECRET` — signing key for refresh tokens, e.g. `docker-refresh-secret`
+  - `AUTH_SERVICE_HOST` — Docker hostname for the auth service, e.g. `auth-service`
+  - `USERS_SERVICE_HOST` — Docker hostname for the users service, e.g. `users-service`
+  - `EXPENSES_SERVICE_HOST` — Docker hostname for the expenses service, e.g. `expenses-service`
 
 #### Scenario: Environment file is committed with safe defaults
 
