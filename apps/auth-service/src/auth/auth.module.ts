@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
+import { SharedModule } from '@tracker/shared';
 
 import { AuthConfigService } from '../config/auth-config.service';
 import { AuthController } from './auth.controller';
@@ -22,6 +23,7 @@ import { KnownDevicesRepository } from './repositories/known-devices.repository'
       }),
     }),
     HttpModule,
+    SharedModule,
   ],
   controllers: [AuthController],
   providers: [
