@@ -30,7 +30,40 @@ Running PostgreSQL as a Docker container on the same VM works, but has risks:
 - **Branching** — create database branches for testing
 - Only change needed: swap `DATABASE_URL` to point to Neon instead of the local container
 
-Redis is not yet used in application code, but the compose stack includes it for when it's needed.
+### Cache: Redis — Local Container vs Upstash
+
+Redis is not yet used in application code, but the compose stack includes it for when it's needed. When the time comes:
+
+| Option                                   | Free Tier                   | Latency               | Persistence         | Best For                  |
+| ---------------------------------------- | --------------------------- | --------------------- | ------------------- | ------------------------- |
+| **Docker container on VM (Recommended)** | Unlimited (runs on your VM) | ~0ms (same machine)   | AOF to local volume | Testing, low-traffic apps |
+| Upstash                                  | 10K commands/day, 256MB     | ~5-20ms (network hop) | Managed, durable    | Production, multi-region  |
+
+**Recommendation: Keep Redis on the VM** for this testing setup.
+
+- Redis uses ~30MB RAM at idle with the 256MB maxmemory limit — trivial on a 12GB VM
+- Zero latency (same Docker network) vs network round-trip to Upstash
+- Already configured in `docker-compose.yml` with health checks and persistence
+- No additional account or secrets to manage
+- The `CACHE_URL=redis://redis:6379` env var already works
+
+**When to switch to Upstash:**
+
+- If you move to a multi-instance setup (multiple VMs or serverless)
+- If you need Redis data to survive a full VM rebuild (Upstash is externally managed)
+- If you hit the VM memory ceiling with all services + Redis running
+
+To switch later, just change `CACHE_URL` in `.env.production`:
+
+```bash
+# Local (current)
+CACHE_URL=redis://redis:6379
+
+# Upstash (future)
+CACHE_URL=rediss://default:xxx@your-instance.upstash.io:6379
+```
+
+Note: Upstash uses `rediss://` (with double s) for TLS connections.
 
 ## Architecture
 
